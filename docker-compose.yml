@@ -1,0 +1,63 @@
+# -----------------------------------------------------------------------------
+# CloudMart local orchestration: backend + PostgreSQL.
+#
+# The backend depends on the database being *healthy* (not merely started),
+# and the database persists its data to a named volume.
+# -----------------------------------------------------------------------------
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: cloudmart-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-cloudmart}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-cloudmart}
+      POSTGRES_DB: ${DB_NAME:-cloudmart}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      # Persist database data across container restarts.
+      - pgdata:/var/lib/postgresql/data
+      # Run the schema + seed script on first initialization.
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-cloudmart} -d ${DB_NAME:-cloudmart}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./backend
+    container_name: cloudmart-backend
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      # Inside the compose network the database is reachable by its service name.
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-cloudmart}
+      DB_PASSWORD: ${DB_PASSWORD:-cloudmart}
+      DB_NAME: ${DB_NAME:-cloudmart}
+      DB_CONNECT_RETRIES: 5
+      DB_CONNECT_RETRY_DELAY_MS: 3000
+    ports:
+      - "${PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - "CMD"
+        - "node"
+        - "-e"
+        - "require('http').get('http://127.0.0.1:3000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  pgdata:
