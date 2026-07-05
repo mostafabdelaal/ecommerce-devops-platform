@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-thumb { background: #D2D3CD; border-radius: 10px; }
+    input:focus, textarea:focus, select:focus { outline: none; }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</helmet>
+
+<div style="min-height:100vh; background:#F6F4EF; font-family:'Inter',sans-serif; color:#17191A; display:flex; flex-direction:column;">
+
+  <!-- ================= AUTH HEADER ================= -->
+  <sc-if value="{{showAuthHeader}}" hint-placeholder-val="{{false}}">
+    <header style="padding:22px 40px; display:flex; align-items:center; justify-content:center; border-bottom:1px solid #E6E4DD; background:#fff;">
+      <div style="display:flex; align-items:center; gap:10px; cursor:pointer;" onClick="{{goHome}}">
+        <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#0C7C6E,#17191A); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; color:#fff; font-size:15px;">C</div>
+        <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:19px; color:#17191A;">CloudMart</div>
+      </div>
+    </header>
+  </sc-if>
+
+  <!-- ================= FULL STORE HEADER ================= -->
+  <sc-if value="{{showFullHeader}}" hint-placeholder-val="{{true}}">
+    <div>
+      <header style="background:#fff; border-bottom:1px solid #E6E4DD; padding:16px 40px; display:flex; align-items:center; gap:28px; position:sticky; top:0; z-index:50;">
+        <div style="display:flex; align-items:center; gap:10px; cursor:pointer; flex-shrink:0;" onClick="{{goHome}}">
+          <div style="width:34px; height:34px; border-radius:9px; background:linear-gradient(135deg,#0C7C6E,#17191A); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; color:#fff; font-size:16px;">C</div>
+          <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:20px; color:#17191A;">CloudMart</div>
+        </div>
+
+        <div style="flex:1; max-width:560px; position:relative;">
+          <input value="{{ search }}" onChange="{{ onSearchChange }}" placeholder="Search earbuds, keyboards, smart speakers…" style="width:100%; padding:11px 16px 11px 42px; border-radius:10px; border:1px solid #E6E4DD; background:#F6F4EF; font-size:14px; font-family:'Inter',sans-serif; color:#17191A;"/>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#6E736F" stroke-width="2" stroke-linecap="round" style="position:absolute; left:14px; top:50%; transform:translateY(-50%);"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <sc-if value="{{ showAutocomplete }}" hint-placeholder-val="{{false}}">
+            <div style="position:absolute; top:calc(100% + 6px); left:0; right:0; background:#fff; border:1px solid #E6E4DD; border-radius:12px; box-shadow:0 12px 28px rgba(15,23,42,0.12); overflow:hidden; z-index:60;">
+              <sc-for list="{{ autocompleteResults }}" as="ac" hint-placeholder-count="3">
+                <div onClick="{{ac.onSelect}}" style="padding:10px 16px; display:flex; align-items:center; gap:10px; cursor:pointer; font-size:13.5px;" style-hover="background:#F6F4EF;">
+                  <div style="width:26px; height:26px; border-radius:6px; background:linear-gradient(135deg, {{ac.gradientFrom}}, {{ac.gradientTo}}); flex-shrink:0;"></div>
+                  <span>{{ac.name}}</span>
+                  <span style="margin-left:auto; color:#6E736F; font-size:12.5px;">{{ac.category}}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+
+        <nav style="display:flex; align-items:center; gap:22px; flex-shrink:0; font-size:14.5px; font-weight:600;">
+          <a onClick="{{goHome}}" style="cursor:pointer; color:{{navHomeColor}};">Home</a>
+          <a onClick="{{goCatalog}}" style="cursor:pointer; color:{{navCatalogColor}};">Catalog</a>
+          <a onClick="{{goAdmin}}" style="cursor:pointer; color:#6E736F; display:flex; align-items:center; gap:5px;" title="Store admin panel"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>Admin</a>
+        </nav>
+
+        <div style="display:flex; align-items:center; gap:16px; flex-shrink:0;">
+          <button onClick="{{goCart}}" style="background:none; border:none; cursor:pointer; padding:6px; position:relative; color:#6E736F; display:flex;" style-hover="color:#17191A;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+            <sc-if value="{{ cartCount }}" hint-placeholder-val="{{0}}">
+              <span style="position:absolute; top:-4px; right:-6px; background:#0C7C6E; color:#fff; font-size:10.5px; font-weight:700; min-width:17px; height:17px; border-radius:9px; display:flex; align-items:center; justify-content:center; padding:0 4px;">{{cartCount}}</span>
+            </sc-if>
+          </button>
+          <sc-if value="{{ user }}" hint-placeholder-val="{{false}}">
+            <div onClick="{{goDashboard}}" style="display:flex; align-items:center; gap:9px; cursor:pointer; padding:5px 12px 5px 5px; border-radius:20px; background:#F0EEE8;" style-hover="background:#E6E4DD;">
+              <div style="width:28px; height:28px; border-radius:50%; background:#17191A; color:#fff; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif;">{{userInitials}}</div>
+              <span style="font-size:13.5px; font-weight:600;">{{ user.name }}</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ !user }}" hint-placeholder-val="{{false}}">
+            <button onClick="{{goLogin}}" style="background:#17191A; color:#fff; border:none; border-radius:9px; padding:10px 18px; font-size:13.5px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;" style-hover="background:#26292A;">Sign In</button>
+          </sc-if>
+        </div>
+      </header>
+
+      <sc-if value="{{ showCategoryBar }}" hint-placeholder-val="{{true}}">
+        <div style="background:#fff; border-bottom:1px solid #E6E4DD; padding:12px 40px; display:flex; gap:10px; overflow-x:auto;">
+          <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="6">
+            <button onClick="{{cat.onSelect}}" style="flex-shrink:0; padding:8px 18px; border-radius:20px; font-size:13.5px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; border:1px solid {{cat.borderColor}}; background:{{cat.bg}}; color:{{cat.color}};">{{cat.label}}</button>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main style="flex:1;">
+
+  <!-- ========================================================= HOME ========================================================= -->
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{true}}">
+    <div>
+      <section style="background:linear-gradient(120deg,#17191A 0%,#132039 55%,#26292A 100%); padding:88px 40px 96px; display:flex; align-items:center; gap:56px; position:relative; overflow:hidden;">
+        <div style="position:absolute; right:-120px; top:-120px; width:420px; height:420px; border-radius:50%; background:radial-gradient(circle, rgba(12,124,110,0.28), transparent 70%);"></div>
+        <div style="max-width:620px; position:relative; z-index:1;">
+          <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(12,124,110,0.14); border:1px solid rgba(12,124,110,0.35); color:#93C5FD; font-size:12.5px; font-weight:600; padding:6px 14px; border-radius:20px; margin-bottom:22px;">
+            <span style="width:6px; height:6px; border-radius:50%; background:#0C7C6E;"></span>
+            Free shipping over EGP 5,000 · Easy 30-day returns
+          </div>
+          <h1 style="font-family:'Space Grotesk',sans-serif; font-size:52px; line-height:1.12; font-weight:700; color:#fff; margin:0 0 20px;">Great tech,<br/>delivered fast.</h1>
+          <p style="font-size:17px; line-height:1.6; color:#A1A6A1; margin:0 0 34px; max-width:480px;">Shop the latest audio, wearables, and everyday tech at prices you'll love — with fast, free shipping and hassle-free returns.</p>
+          <div style="display:flex; gap:14px;">
+            <button onClick="{{goCatalog}}" style="background:#0C7C6E; color:#fff; border:none; border-radius:11px; padding:15px 28px; font-size:15px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif;" style-hover="background:#0A655A;">Shop the catalog</button>
+            <button onClick="{{goCatalog}}" style="background:transparent; color:#E6E4DD; border:1px solid #3A3E3D; border-radius:11px; padding:15px 24px; font-size:15px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;" style-hover="background:#26292A;">Browse deals</button>
+          </div>
+          <div style="display:flex; gap:28px; margin-top:44px;">
+            <div><div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:22px; color:#fff;">12k+</div><div style="font-size:12.5px; color:#6E736F; margin-top:2px;">Products</div></div>
+            <div><div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:22px; color:#fff;">4.8★</div><div style="font-size:12.5px; color:#6E736F; margin-top:2px;">Avg rating</div></div>
+            <div><div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:22px; color:#fff;">2-day</div><div style="font-size:12.5px; color:#6E736F; margin-top:2px;">Free shipping</div></div>
+          </div>
+        </div>
+      </section>
+
+      <section style="padding:36px 40px 0; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px;">
+        <div style="border-radius:18px; background:linear-gradient(120deg,#0C7C6E,#0A4A42); padding:30px 32px; color:#fff; display:flex; flex-direction:column; justify-content:center; min-height:120px;">
+          <div style="font-size:12.5px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; opacity:0.8; margin-bottom:6px;">Summer sale</div>
+          <div style="font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:700;">Up to 30% off audio &amp; wearables</div>
+        </div>
+        <div style="border-radius:18px; background:#17191A; padding:30px 32px; color:#fff; display:flex; flex-direction:column; justify-content:center; min-height:120px;">
+          <div style="font-size:12.5px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; opacity:0.6; margin-bottom:6px;">Free shipping</div>
+          <div style="font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:700;">On every order over EGP 5,000</div>
+        </div>
+      </section>
+
+      <section style="padding:56px 40px 80px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:24px;">
+          <h2 style="font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700; margin:0;">Featured products</h2>
+          <a onClick="{{goCatalog}}" style="color:#0C7C6E; font-weight:600; font-size:14px; cursor:pointer;">View all →</a>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:22px;">
+          <sc-for list="{{ featuredProducts }}" as="p" hint-placeholder-count="8">
+            <div style="background:#fff; border:1px solid #F0EEE8; border-radius:16px; overflow:hidden; box-shadow:0 1px 3px rgba(15,23,42,0.06); display:flex; flex-direction:column; cursor:pointer;" style-hover="box-shadow:0 10px 24px rgba(15,23,42,0.1); transform:translateY(-2px);" onClick="{{p.onView}}">
+              <div style="height:170px; background:linear-gradient(135deg,{{p.gradientFrom}},{{p.gradientTo}}); display:flex; align-items:center; justify-content:center;">
+                <span style="font-family:'Space Grotesk',sans-serif; font-size:44px; font-weight:700; color:rgba(255,255,255,0.55);">{{p.initial}}</span>
+              </div>
+              <div style="padding:16px; display:flex; flex-direction:column; gap:6px; flex:1;">
+                <div style="font-size:11.5px; color:#6E736F; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">{{p.category}}</div>
+                <div style="font-size:14.5px; font-weight:600; line-height:1.3;">{{p.name}}</div>
+                <div style="display:flex; align-items:center; gap:5px; font-size:12.5px; color:#6E736F;">
+                  <span style="color:#F59E0B;">★</span>{{p.rating}}<span>({{p.reviewsDisplay}})</span>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-top:8px;">
+                  <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16.5px;">{{p.priceDisplay}}</span>
+                  <button onClick="{{p.onQuickAdd}}" style="background:#17191A; color:#fff; border:none; border-radius:8px; padding:8px 12px; font-size:12.5px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;" style-hover="background:#0C7C6E;">Add</button>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </div>
+  </sc-if>
+
+  <!-- ========================================================= CATALOG ========================================================= -->
+  <sc-if value="{{ isCatalog }}" hint-placeholder-val="{{false}}">
+    <div style="padding:32px 40px 80px; display:flex; gap:32px; align-items:flex-start;">
+      <aside style="width:240px; flex-shrink:0; background:#fff; border:1px solid #F0EEE8; border-radius:16px; padding:22px; position:sticky; top:96px;">
+        <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; margin-bottom:18px;">Filters</div>
+
+        <div style="margin-bottom:22px;">
+          <div style="font-size:12.5px; font-weight:700; color:#6E736F; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:10px;">Category</div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="6">
+              <div onClick="{{cat.onSelect}}" style="display:flex; align-items:center; gap:9px; cursor:pointer; font-size:13.5px; font-weight:{{cat.active}};">
+                <span style="width:15px; height:15px; border-radius:5px; border:1.5px solid {{cat.dotBorder}}; background:{{cat.dotBg}}; flex-shrink:0;"></span>
+                {{cat.label}}
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="margin-bottom:22px;">
+          <div style="font-size:12.5px; font-weight:700; color:#6E736F; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:10px;">Max price: {{maxPriceDisplay}}</div>
+          <input type="range" min="20" max="1500" step="10" value="{{ filters.maxPrice }}" onChange="{{ onMaxPriceChange }}" style="width:100%; accent-color:#0C7C6E;"/>
+        </div>
+
+        <div style="margin-bottom:8px;">
+          <div style="font-size:12.5px; font-weight:700; color:#6E736F; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:10px;">Minimum rating</div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <sc-for list="{{ ratingOptions }}" as="ro" hint-placeholder-count="4">
+              <div onClick="{{ro.onSelect}}" style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13.5px; padding:5px 8px; border-radius:8px; background:{{ro.bg}};">
+                <span style="color:#F59E0B;">{{ro.stars}}</span><span style="color:#6E736F;">&amp; up</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <button onClick="{{ resetFilters }}" style="margin-top:16px; width:100%; background:#F0EEE8; border:none; border-radius:9px; padding:10px; font-size:13px; font-weight:600; cursor:pointer; color:#17191A;" style-hover="background:#E6E4DD;">Reset filters</button>
+      </aside>
+
+      <div style="flex:1;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+          <div style="font-size:14.5px; color:#6E736F;">{{ resultsCountLabel }}</div>
+          <select value="{{ sortBy }}" onChange="{{ onSortChange }}" style="border:1px solid #E6E4DD; border-radius:9px; padding:9px 14px; font-size:13.5px; font-family:'Inter',sans-serif; background:#fff; color:#17191A;">
+            <option value="relevance">Sort: Relevance</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="rating">Rating</option>
+          </select>
+        </div>
+
+        <sc-if value="{{ hasResults }}" hint-placeholder-val="{{true}}">
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:22px;">
+            <sc-for list="{{ visibleProducts }}" as="p" hint-placeholder-count="8">
+              <div style="background:#fff; border:1px solid #F0EEE8; border-radius:16px; overflow:hidden; box-shadow:0 1px 3px rgba(15,23,42,0.06); display:flex; flex-direction:column; cursor:pointer;" style-hover="box-shadow:0 10px 24px rgba(15,23,42,0.1); transform:translateY(-2px);" onClick="{{p.onView}}">
+                <div style="height:170px; background:linear-gradient(135deg,{{p.gradientFrom}},{{p.gradientTo}}); display:flex; align-items:center; justify-content:center;">
+                  <span style="font-family:'Space Grotesk',sans-serif; font-size:44px; font-weight:700; color:rgba(255,255,255,0.55);">{{p.initial}}</span>
+                </div>
+                <div style="padding:16px; display:flex; flex-direction:column; gap:6px; flex:1;">
+                  <div style="font-size:11.5px; color:#6E736F; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">{{p.category}}</div>
+                  <div style="font-size:14.5px; font-weight:600; line-height:1.3;">{{p.name}}</div>
+                  <div style="display:flex; align-items:center; gap:5px; font-size:12.5px; color:#6E736F;">
+                    <span style="color:#F59E0B;">★</span>{{p.rating}}<span>({{p.reviewsDisplay}})</span>
+                  </div>
+                  <div style="font-size:12px; font-weight:600; color:{{p.stockColor}};">{{p.stockLabel}}</div>
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-top:6px;">
+                    <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16.5px;">{{p.priceDisplay}}</span>
+                    <button onClick="{{p.onQuickAdd}}" style="background:#17191A; color:#fff; border:none; border-radius:8px; padding:8px 12px; font-size:12.5px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;" style-hover="background:#0C7C6E;">Add</button>
+                  </div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ !hasResults }}" hint-placeholder-val="{{false}}">
+          <div style="padding:80px 20px; text-align:center; color:#6E736F;">
+            <div style="font-size:16px; font-weight:600; color:#17191A; margin-bottom:6px;">No products match your filters</div>
+            <div style="font-size:14px;">Try widening your price range or clearing filters.</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showLoadMore }}" hint-placeholder-val="{{false}}">
+          <div style="text-align:center; margin-top:32px;">
+            <button onClick="{{ loadMore }}" style="background:#fff; border:1px solid #E6E4DD; border-radius:10px; padding:13px 28px; font-size:14px; font-weight:600; cursor:pointer; color:#17191A;" style-hover="background:#F6F4EF;">Load more products</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ========================================================= PRODUCT DETAIL ========================================================= -->
+  <sc-if value="{{ isProduct }}" hint-placeholder-val="{{false}}">
+    <sc-if value="{{ selectedProduct }}" hint-placeholder-val="{{false}}">
+      <div style="padding:28px 40px 80px;">
+        <div style="font-size:13px; color:#6E736F; margin-bottom:24px; display:flex; gap:8px; align-items:center;">
+          <a onClick="{{goHome}}" style="cursor:pointer; color:#6E736F;">Home</a> /
+          <a onClick="{{goCatalog}}" style="cursor:pointer; color:#6E736F;">{{ selectedProduct.category }}</a> /
+          <span style="color:#17191A; font-weight:600;">{{ selectedProduct.name }}</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:56px;">
+          <div>
+            <div style="height:420px; border-radius:20px; background:linear-gradient(135deg,{{selectedProduct.gradientFrom}},{{selectedProduct.gradientTo}}); display:flex; align-items:center; justify-content:center; margin-bottom:16px;">
+              <span style="font-family:'Space Grotesk',sans-serif; font-size:120px; font-weight:700; color:rgba(255,255,255,0.5);">{{selectedProduct.initial}}</span>
+            </div>
+            <div style="display:flex; gap:12px;">
+              <sc-for list="{{ galleryThumbs }}" as="g" hint-placeholder-count="4">
+                <div onClick="{{g.onSelect}}" style="width:80px; height:80px; border-radius:12px; background:linear-gradient(135deg,{{selectedProduct.gradientFrom}},{{selectedProduct.gradientTo}}); opacity:{{g.opacity}}; border:2px solid {{g.borderColor}}; cursor:pointer;"></div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:12.5px; color:#0C7C6E; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">{{ selectedProduct.category }}</div>
+            <h1 style="font-family:'Space Grotesk',sans-serif; font-size:30px; font-weight:700; margin:0 0 12px;">{{ selectedProduct.name }}</h1>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:18px; font-size:14px; color:#6E736F;">
+              <span style="color:#F59E0B;">★★★★★</span>
+              <span style="font-weight:600; color:#17191A;">{{ selectedProduct.rating }}</span>
+              <span>({{ selectedProduct.reviewsDisplay }} reviews)</span>
+            </div>
+            <div style="font-family:'Space Grotesk',sans-serif; font-size:32px; font-weight:700; margin-bottom:14px;">{{ selectedProduct.priceDisplay }}</div>
+            <div style="display:inline-block; padding:6px 14px; border-radius:20px; font-size:12.5px; font-weight:700; background:{{selectedProduct.stockBg}}; color:{{selectedProduct.stockColor}}; margin-bottom:22px;">{{ selectedProduct.stockLabel }}</div>
+            <p style="font-size:15px; line-height:1.7; color:#565B59; margin:0 0 28px;">{{ selectedProduct.description }}</p>
+
+            <div style="display:flex; align-items:center; gap:20px; margin-bottom:22px;">
+              <div style="display:flex; align-items:center; border:1px solid #E6E4DD; border-radius:10px;">
+                <button onClick="{{ decrementQty }}" style="width:38px; height:42px; border:none; background:none; font-size:18px; cursor:pointer; color:#17191A;">−</button>
+                <span style="width:36px; text-align:center; font-weight:600; font-size:15px;">{{ quantity }}</span>
+                <button onClick="{{ incrementQty }}" style="width:38px; height:42px; border:none; background:none; font-size:18px; cursor:pointer; color:#17191A;">+</button>
+              </div>
+              <span style="font-size:13px; color:#6E736F;">{{ selectedProduct.stockNote }}</span>
+            </div>
+
+            <div style="display:flex; gap:14px;">
+              <button onClick="{{ addSelectedToCart }}" style="flex:1; background:#fff; border:2px solid #17191A; color:#17191A; border-radius:11px; padding:15px; font-size:15px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif;" style-hover="background:#F6F4EF;">Add to Cart</button>
+              <button onClick="{{ buyNow }}" style="flex:1; background:#0C7C6E; border:none; color:#fff; border-radius:11px; padding:15px; font-size:15px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif;" style-hover="background:#0A655A;">Buy Now</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:72px;">
+          <h2 style="font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:700; margin:0 0 22px;">Related products</h2>
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:22px;">
+            <sc-for list="{{ relatedProducts }}" as="p" hint-placeholder-count="4">
+              <div style="background:#fff; border:1px solid #F0EEE8; border-radius:16px; overflow:hidden; box-shadow:0 1px 3px rgba(15,23,42,0.06); cursor:pointer;" style-hover="box-shadow:0 10px 24px rgba(15,23,42,0.1); transform:translateY(-2px);" onClick="{{p.onView}}">
+                <div style="height:140px; background:linear-gradient(135deg,{{p.gradientFrom}},{{p.gradientTo}}); display:flex; align-items:center; justify-content:center;">
+                  <span style="font-family:'Space Grotesk',sans-serif; font-size:36px; font-weight:700; color:rgba(255,255,255,0.55);">{{p.initial}}</span>
+                </div>
+                <div style="padding:14px;">
+                  <div style="font-size:14px; font-weight:600; margin-bottom:6px;">{{p.name}}</div>
+                  <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px;">{{p.priceDisplay}}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+  </sc-if>
+
+  <!-- ========================================================= CART ========================================================= -->
+  <sc-if value="{{ isCart }}" hint-placeholder-val="{{false}}">
+    <div style="padding:32px 40px 80px; max-width:1100px; margin:0 auto;">
+      <h1 style="font-family:'Space Grotesk',sans-serif; font-size:28px; font-weight:700; margin:0 0 28px;">Your Cart</h1>
+
+      <sc-if value="{{ cartIsEmpty }}" hint-placeholder-val="{{false}}">
+        <div style="text-align:center; padding:90px 20px; background:#fff; border-radius:18px; border:1px solid #F0EEE8;">
+          <div style="font-size:17px; font-weight:600; margin-bottom:10px;">Your cart is empty</div>
+          <div style="font-size:14px; color:#6E736F; margin-bottom:24px;">Add some products to see them here.</div>
+          <button onClick="{{goCatalog}}" style="background:#0C7C6E; color:#fff; border:none; border-radius:10px; padding:13px 26px; font-size:14.5px; font-weight:700; cursor:pointer;">Browse catalog</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ !cartIsEmpty }}" hint-placeholder-val="{{true}}">
+        <div style="display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:32px; align-items:start;">
+          <div style="display:flex; flex-direction:column; gap:16px;">
+            <sc-for list="{{ cartItemsDetailed }}" as="ci" hint-placeholder-count="2">
+              <div style="background:#fff; border:1px solid #F0EEE8; border-radius:16px; padding:18px; display:flex; gap:18px; align-items:center;">
+                <div style="width:84px; height:84px; border-radius:12px; background:linear-gradient(135deg,{{ci.gradientFrom}},{{ci.gradientTo}}); flex-shrink:0; display:flex; align-items:center; justify-content:center;">
+                  <span style="font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700; color:rgba(255,255,255,0.55);">{{ci.initial}}</span>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:15px; font-weight:600; margin-bottom:4px;">{{ci.name}}</div>
+                  <div style="font-size:13px; color:#6E736F;">{{ci.priceDisplay}} each</div>
+                </div>
+                <div style="display:flex; align-items:center; border:1px solid #E6E4DD; border-radius:10px;">
+                  <button onClick="{{ci.onDec}}" style="width:32px; height:36px; border:none; background:none; font-size:16px; cursor:pointer;">−</button>
+                  <span style="width:28px; text-align:center; font-weight:600; font-size:14px;">{{ci.qty}}</span>
+                  <button onClick="{{ci.onInc}}" style="width:32px; height:36px; border:none; background:none; font-size:16px; cursor:pointer;">+</button>
+                </div>
+                <div style="width:90px; text-align:right; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15.5px;">{{ci.lineTotalDisplay}}</div>
+                <button onClick="{{ci.onRemove}}" style="background:none; border:none; cursor:pointer; color:#A1A6A1; padding:6px;" style-hover="color:#DC2626;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"></path></svg>
+                </button>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="background:#fff; border:1px solid #F0EEE8; border-radius:18px; padding:26px; position:sticky; top:96px;">
+            <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:17px; margin-bottom:20px;">Order Summary</div>
+            <div style="display:flex; justify-content:space-between; font-size:14px; color:#565B59; margin-bottom:12px;"><span>Subtotal</span><span>{{cartSubtotalDisplay}}</span></div>
+            <div style="display:flex; justify-content:space-between; font-size:14px; color:#565B59; margin-bottom:12px;"><span>Shipping</span><span>{{cartShippingDisplay}}</span></div>
+            <div style="display:flex; justify-content:space-between; font-size:14px; color:#565B59; margin-bottom:16px;"><span>Tax</span><span>{{cartTaxDisplay}}</span></div>
+            <div style="border-top:1px solid #E6E4DD; padding-top:16px; display:flex; justify-content:space-between; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px; margin-bottom:22px;"><span>Total</span><span>{{cartTotalDisplay}}</span></div>
+            <button onClick="{{goCheckout}}" style="width:100%; background:#0C7C6E; color:#fff; border:none; border-radius:11px; padding:15px; font-size:15px; font-weight:700; cursor:pointer;" style-hover="background:#0A655A;">Proceed to Checkout</button>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ========================================================= CHECKOUT ========================================================= -->
+  <sc-if value="{{ isCheckout }}" hint-placeholder-val="{{false}}">
+    <div style="padding:32px 40px 80px; max-width:1100px; margin:0 auto;">
+      <h1 style="font-family:'Space Grotesk',sans-serif; font-size:28px; font-weight:700; margin:0 0 28px;">Checkout</h1>
+      <div style="display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:32px; align-items:start;">
+        <div style="display:flex; flex-direction:column; gap:24px;">
+
+          <div style="background:#fff; border:1px solid #F0EEE8; border-radius:18px; padding:26px;">
+            <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; margin-bottom:18px;">Shipping Address</div>
+            <div style="display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px;">
+              <div style="grid-column:span 2;">
+                <input value="{{checkout.fullName}}" onChange="{{ onCheckoutField_fullName }}" placeholder="Full name" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid {{checkoutErrors.fullNameBorder}}; font-size:14px; font-family:'Inter',sans-serif;"/>
+              </div>
+              <div style="grid-column:span 2;">
+                <input value="{{checkout.address}}" onChange="{{ onCheckoutField_address }}" placeholder="Street address" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid {{checkoutErrors.addressBorder}}; font-size:14px; font-family:'Inter',sans-serif;"/>
+              </div>
+              <input value="{{checkout.city}}" onChange="{{ onCheckoutField_city }}" placeholder="City" style="padding:12px 14px; border-radius:9px; border:1px solid {{checkoutErrors.cityBorder}}; font-size:14px; font-family:'Inter',sans-serif;"/>
+              <input value="{{checkout.zip}}" onChange="{{ onCheckoutField_zip }}" placeholder="ZIP / Postal code" style="padding:12px 14px; border-radius:9px; border:1px solid {{checkoutErrors.zipBorder}}; font-size:14px; font-family:'Inter',sans-serif;"/>
+              <div style="grid-column:span 2;">
+                <input value="{{checkout.country}}" onChange="{{ onCheckoutField_country }}" placeholder="Country" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid {{checkoutErrors.countryBorder}}; font-size:14px; font-family:'Inter',sans-serif;"/>
+              </div>
+            </div>
+            <sc-if value="{{ checkoutErrors.hasShippingError }}" hint-placeholder-val="{{false}}">
+              <div style="color:#DC2626; font-size:13px; margin-top:10px;">Please fill in all shipping fields.</div>
+            </sc-if>
+          </div>
+
+          <div style="background:#fff; border:1px solid #F0EEE8; border-radius:18px; padding:26px;">
+            <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px; margin-bottom:18px;">Payment Method</div>
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:18px;">
+              <div onClick="{{selectCardPayment}}" style="border:2px solid {{paymentCardBorder}}; background:{{paymentCardBg}}; border-radius:12px; padding:16px; text-align:center; cursor:pointer; font-size:13.5px; font-weight:600;">💳 Card</div>
+              <div onClick="{{selectPaypalPayment}}" style="border:2px solid {{paymentPaypalBorder}}; background:{{paymentPaypalBg}}; border-radius:12px; padding:16px; text-align:center; cursor:pointer; font-size:13.5px; font-weight:600;">PayPal</div>
+              <div onClick="{{selectApplePayPayment}}" style="border:2px solid {{paymentApplepayBorder}}; background:{{paymentApplepayBg}}; border-radius:12px; padding:16px; text-align:center; cursor:pointer; font-size:13.5px; font-weight:600;"> Apple Pay</div>
+            </div>
+            <sc-if value="{{ paymentIsCard }}" hint-placeholder-val="{{true}}">
+              <div style="display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px;">
+                <div style="grid-column:span 2;">
+                  <input value="{{checkout.cardNumber}}" onChange="{{ onCheckoutField_cardNumber }}" placeholder="Card number" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid {{checkoutErrors.cardNumberBorder}}; font-size:14px; font-family:'Inter',sans-serif;"/>
+                </div>
+                <input value="{{checkout.cardExpiry}}" onChange="{{ onCheckoutField_cardExpiry }}" placeholder="MM/YY" style="padding:12px 14px; border-radius:9px; border:1px solid {{checkoutErrors.cardExpiryBorder}}; font-size:14px; font-family:'Inter',sans-serif;"/>
+                <input value="{{checkout.cardCvc}}" onChange="{{ onCheckoutField_cardCvc }}" placeholder="CVC" style="padding:12px 14px; border-radius:9px; border:1px solid {{checkoutErrors.cardCvcBorder}}; font-size:14px; font-family:'Inter',sans-serif;"/>
+              </div>
+            </sc-if>
+            <sc-if value="{{ !paymentIsCard }}" hint-placeholder-val="{{false}}">
+              <div style="font-size:13.5px; color:#6E736F;">You'll be redirected to complete payment after placing the order.</div>
+            </sc-if>
+          </div>
+
+        </div>
+
+        <div style="background:#fff; border:1px solid #F0EEE8; border-radius:18px; padding:26px; position:sticky; top:96px;">
+          <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:17px; margin-bottom:18px;">Order Review</div>
+          <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px; max-height:180px; overflow-y:auto; overflow-x:hidden;">
+            <sc-for list="{{ cartItemsDetailed }}" as="ci" hint-placeholder-count="2">
+              <div style="display:flex; justify-content:space-between; gap:10px; font-size:13.5px; min-width:0;"><span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;">{{ci.name}} × {{ci.qty}}</span><span style="font-weight:600; flex-shrink:0;">{{ci.lineTotalDisplay}}</span></div>
+            </sc-for>
+          </div>
+          <div style="border-top:1px solid #E6E4DD; padding-top:14px; display:flex; justify-content:space-between; font-size:14px; color:#565B59; margin-bottom:10px;"><span>Subtotal</span><span>{{cartSubtotalDisplay}}</span></div>
+          <div style="display:flex; justify-content:space-between; font-size:14px; color:#565B59; margin-bottom:10px;"><span>Shipping</span><span>{{cartShippingDisplay}}</span></div>
+          <div style="display:flex; justify-content:space-between; font-size:14px; color:#565B59; margin-bottom:16px;"><span>Tax</span><span>{{cartTaxDisplay}}</span></div>
+          <div style="border-top:1px solid #E6E4DD; padding-top:16px; display:flex; justify-content:space-between; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px; margin-bottom:22px;"><span>Total</span><span>{{cartTotalDisplay}}</span></div>
+          <button onClick="{{ placeOrder }}" style="width:100%; background:#0C7C6E; color:#fff; border:none; border-radius:11px; padding:15px; font-size:15px; font-weight:700; cursor:pointer;" style-hover="background:#0A655A;">Place Order</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ========================================================= LOGIN ========================================================= -->
+  <sc-if value="{{ isLogin }}" hint-placeholder-val="{{false}}">
+    <div style="min-height:calc(100vh - 73px); display:flex; align-items:center; justify-content:center; padding:40px;">
+      <div style="width:400px; background:#fff; border:1px solid #F0EEE8; border-radius:20px; padding:36px; box-shadow:0 4px 20px rgba(15,23,42,0.06);">
+        <h1 style="font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:700; margin:0 0 6px;">Welcome back</h1>
+        <p style="font-size:14px; color:#6E736F; margin:0 0 26px;">Sign in to manage orders and your profile.</p>
+
+        <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:20px;">
+          <div>
+            <input value="{{loginForm.email}}" onChange="{{ onLoginEmailChange }}" placeholder="Email address" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid {{loginErrors.emailBorder}}; font-size:14px; font-family:'Inter',sans-serif;"/>
+            <sc-if value="{{loginErrors.email}}" hint-placeholder-val="{{false}}"><div style="color:#DC2626; font-size:12.5px; margin-top:5px;">{{loginErrors.email}}</div></sc-if>
+          </div>
+          <div>
+            <input type="password" value="{{loginForm.password}}" onChange="{{ onLoginPasswordChange }}" placeholder="Password" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid {{loginErrors.passwordBorder}}; font-size:14px; font-family:'Inter',sans-serif;"/>
+            <sc-if value="{{loginErrors.password}}" hint-placeholder-val="{{false}}"><div style="color:#DC2626; font-size:12.5px; margin-top:5px;">{{loginErrors.password}}</div></sc-if>
+          </div>
+        </div>
+
+        <button onClick="{{ submitLogin }}" style="width:100%; background:#0C7C6E; color:#fff; border:none; border-radius:10px; padding:13px; font-size:14.5px; font-weight:700; cursor:pointer; margin-bottom:18px;" style-hover="background:#0A655A;">Sign In</button>
+
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+          <div style="flex:1; height:1px; background:#E6E4DD;"></div><span style="font-size:12px; color:#A1A6A1;">or continue with</span><div style="flex:1; height:1px; background:#E6E4DD;"></div>
+        </div>
+        <div style="display:flex; gap:12px; margin-bottom:22px;">
+          <button onClick="{{ submitLogin }}" style="flex:1; border:1px solid #E6E4DD; background:#fff; border-radius:9px; padding:11px; font-size:13.5px; font-weight:600; cursor:pointer;" style-hover="background:#F6F4EF;">Google</button>
+          <button onClick="{{ submitLogin }}" style="flex:1; border:1px solid #E6E4DD; background:#fff; border-radius:9px; padding:11px; font-size:13.5px; font-weight:600; cursor:pointer;" style-hover="background:#F6F4EF;">GitHub</button>
+        </div>
+        <div style="text-align:center; font-size:13.5px; color:#6E736F;">No account? <a onClick="{{goRegister}}" style="color:#0C7C6E; font-weight:600; cursor:pointer;">Create one</a></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ========================================================= REGISTER ========================================================= -->
+  <sc-if value="{{ isRegister }}" hint-placeholder-val="{{false}}">
+    <div style="min-height:calc(100vh - 73px); display:flex; align-items:center; justify-content:center; padding:40px;">
+      <div style="width:400px; background:#fff; border:1px solid #F0EEE8; border-radius:20px; padding:36px; box-shadow:0 4px 20px rgba(15,23,42,0.06);">
+        <h1 style="font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:700; margin:0 0 6px;">Create your account</h1>
+        <p style="font-size:14px; color:#6E736F; margin:0 0 26px;">Join CloudMart in seconds.</p>
+
+        <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:8px;">
+          <div>
+            <input value="{{registerForm.name}}" onChange="{{ onRegisterNameChange }}" placeholder="Full name" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid {{registerErrors.nameBorder}}; font-size:14px; font-family:'Inter',sans-serif;"/>
+            <sc-if value="{{registerErrors.name}}" hint-placeholder-val="{{false}}"><div style="color:#DC2626; font-size:12.5px; margin-top:5px;">{{registerErrors.name}}</div></sc-if>
+          </div>
+          <div>
+            <input value="{{registerForm.email}}" onChange="{{ onRegisterEmailChange }}" placeholder="Email address" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid {{registerErrors.emailBorder}}; font-size:14px; font-family:'Inter',sans-serif;"/>
+            <sc-if value="{{registerErrors.email}}" hint-placeholder-val="{{false}}"><div style="color:#DC2626; font-size:12.5px; margin-top:5px;">{{registerErrors.email}}</div></sc-if>
+          </div>
+          <div>
+            <input type="password" value="{{registerForm.password}}" onChange="{{ onRegisterPasswordChange }}" placeholder="Password" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid {{registerErrors.passwordBorder}}; font-size:14px; font-family:'Inter',sans-serif;"/>
+            <sc-if value="{{registerErrors.password}}" hint-placeholder-val="{{false}}"><div style="color:#DC2626; font-size:12.5px; margin-top:5px;">{{registerErrors.password}}</div></sc-if>
+          </div>
+          <div>
+            <input type="password" value="{{registerForm.confirm}}" onChange="{{ onRegisterConfirmChange }}" placeholder="Confirm password" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid {{registerErrors.confirmBorder}}; font-size:14px; font-family:'Inter',sans-serif;"/>
+            <sc-if value="{{registerErrors.confirm}}" hint-placeholder-val="{{false}}"><div style="color:#DC2626; font-size:12.5px; margin-top:5px;">{{registerErrors.confirm}}</div></sc-if>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:flex-start; gap:9px; margin:10px 0 20px;">
+          <input type="checkbox" checked="{{registerForm.terms}}" onChange="{{ onRegisterTermsChange }}" style="margin-top:3px;"/>
+          <span style="font-size:13px; color:#6E736F; line-height:1.5;">I agree to the Terms of Service and Privacy Policy</span>
+        </div>
+        <sc-if value="{{registerErrors.terms}}" hint-placeholder-val="{{false}}"><div style="color:#DC2626; font-size:12.5px; margin:-10px 0 14px;">{{registerErrors.terms}}</div></sc-if>
+
+        <button onClick="{{ submitRegister }}" style="width:100%; background:#0C7C6E; color:#fff; border:none; border-radius:10px; padding:13px; font-size:14.5px; font-weight:700; cursor:pointer; margin-bottom:18px;" style-hover="background:#0A655A;">Create Account</button>
+        <div style="text-align:center; font-size:13.5px; color:#6E736F;">Already have an account? <a onClick="{{goLogin}}" style="color:#0C7C6E; font-weight:600; cursor:pointer;">Sign in</a></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ========================================================= DASHBOARD ========================================================= -->
+  <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{false}}">
+    <div style="padding:32px 40px 80px; max-width:1100px; margin:0 auto; display:grid; grid-template-columns:240px minmax(0,1fr); gap:32px; align-items:start;">
+      <aside style="background:#fff; border:1px solid #F0EEE8; border-radius:16px; padding:20px; position:sticky; top:96px;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:22px; padding-bottom:18px; border-bottom:1px solid #F0EEE8;">
+          <div style="width:44px; height:44px; border-radius:50%; background:#17191A; color:#fff; font-weight:700; display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif;">{{userInitials}}</div>
+          <div>
+            <div style="font-weight:600; font-size:14.5px;">{{ profileForm.name }}</div>
+            <div style="font-size:12.5px; color:#6E736F;">{{ profileForm.email }}</div>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <button onClick="{{setTabOrders}}" style="text-align:left; padding:11px 14px; border-radius:9px; border:none; cursor:pointer; font-size:14px; font-weight:600; background:{{tabOrdersBg}}; color:{{tabOrdersColor}};">Order History</button>
+          <button onClick="{{setTabSettings}}" style="text-align:left; padding:11px 14px; border-radius:9px; border:none; cursor:pointer; font-size:14px; font-weight:600; background:{{tabSettingsBg}}; color:{{tabSettingsColor}};">Profile Settings</button>
+          <button onClick="{{ logout }}" style="text-align:left; padding:11px 14px; border-radius:9px; border:none; cursor:pointer; font-size:14px; font-weight:600; color:#DC2626; margin-top:8px;" style-hover="background:#FEE2E2;">Log Out</button>
+        </div>
+      </aside>
+
+      <div>
+        <sc-if value="{{ isTabOrders }}" hint-placeholder-val="{{true}}">
+          <div>
+            <h1 style="font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:700; margin:0 0 20px;">Order History</h1>
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <sc-for list="{{ ordersList }}" as="o" hint-placeholder-count="3">
+                <div style="background:#fff; border:1px solid #F0EEE8; border-radius:16px; padding:20px 22px; display:flex; align-items:center; gap:18px;">
+                  <div style="flex:1;">
+                    <div style="font-weight:700; font-size:14.5px; margin-bottom:4px;">{{o.id}}</div>
+                    <div style="font-size:12.5px; color:#6E736F;">{{o.date}} · {{o.itemCount}} item(s)</div>
+                  </div>
+                  <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px;">{{o.totalDisplay}}</div>
+                  <div style="padding:6px 14px; border-radius:20px; font-size:12.5px; font-weight:700; background:{{o.statusBg}}; color:{{o.statusColor}};">{{o.status}}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ !isTabOrders }}" hint-placeholder-val="{{false}}">
+          <div style="max-width:560px;">
+            <h1 style="font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:700; margin:0 0 20px;">Account Settings</h1>
+
+            <div style="background:#fff; border:1px solid #F0EEE8; border-radius:16px; padding:26px; display:flex; flex-direction:column; gap:16px; margin-bottom:22px;">
+              <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px;">Personal Information</div>
+              <div>
+                <div style="font-size:12.5px; font-weight:600; color:#6E736F; margin-bottom:6px;">Full name</div>
+                <input value="{{profileForm.name}}" onChange="{{ onProfileNameChange }}" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid #E6E4DD; font-size:14px; font-family:'Inter',sans-serif;"/>
+              </div>
+              <div>
+                <div style="font-size:12.5px; font-weight:600; color:#6E736F; margin-bottom:6px;">Email</div>
+                <input value="{{profileForm.email}}" onChange="{{ onProfileEmailChange }}" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid #E6E4DD; font-size:14px; font-family:'Inter',sans-serif;"/>
+              </div>
+              <div>
+                <div style="font-size:12.5px; font-weight:600; color:#6E736F; margin-bottom:6px;">Phone number</div>
+                <input value="{{profileForm.phone}}" onChange="{{ onProfilePhoneChange }}" placeholder="(555) 000-0000" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid #E6E4DD; font-size:14px; font-family:'Inter',sans-serif;"/>
+              </div>
+              <div>
+                <div style="font-size:12.5px; font-weight:600; color:#6E736F; margin-bottom:6px;">Default shipping address</div>
+                <input value="{{profileForm.address}}" onChange="{{ onProfileAddressChange }}" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid #E6E4DD; font-size:14px; font-family:'Inter',sans-serif;"/>
+              </div>
+              <button onClick="{{ saveProfile }}" style="align-self:flex-start; background:#17191A; color:#fff; border:none; border-radius:9px; padding:12px 22px; font-size:14px; font-weight:700; cursor:pointer; margin-top:6px;" style-hover="background:#26292A;">Save Changes</button>
+            </div>
+
+            <div style="background:#fff; border:1px solid #F0EEE8; border-radius:16px; padding:26px; display:flex; flex-direction:column; gap:16px; margin-bottom:22px;">
+              <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px;">Password</div>
+              <div>
+                <div style="font-size:12.5px; font-weight:600; color:#6E736F; margin-bottom:6px;">Current password</div>
+                <input type="password" value="{{passwordForm.current}}" onChange="{{ onPasswordCurrentChange }}" placeholder="••••••••" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid #E6E4DD; font-size:14px; font-family:'Inter',sans-serif;"/>
+              </div>
+              <div style="display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px;">
+                <div>
+                  <div style="font-size:12.5px; font-weight:600; color:#6E736F; margin-bottom:6px;">New password</div>
+                  <input type="password" value="{{passwordForm.next}}" onChange="{{ onPasswordNextChange }}" placeholder="••••••••" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid #E6E4DD; font-size:14px; font-family:'Inter',sans-serif;"/>
+                </div>
+                <div>
+                  <div style="font-size:12.5px; font-weight:600; color:#6E736F; margin-bottom:6px;">Confirm new password</div>
+                  <input type="password" value="{{passwordForm.confirm}}" onChange="{{ onPasswordConfirmChange }}" placeholder="••••••••" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid #E6E4DD; font-size:14px; font-family:'Inter',sans-serif;"/>
+                </div>
+              </div>
+              <button onClick="{{ updatePassword }}" style="align-self:flex-start; background:#17191A; color:#fff; border:none; border-radius:9px; padding:12px 22px; font-size:14px; font-weight:700; cursor:pointer; margin-top:6px;" style-hover="background:#26292A;">Update Password</button>
+            </div>
+
+            <div style="background:#fff; border:1px solid #F0EEE8; border-radius:16px; padding:26px; display:flex; flex-direction:column; gap:6px;">
+              <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; margin-bottom:10px;">Email Preferences</div>
+              <sc-for list="{{ prefsList }}" as="pref" hint-placeholder-count="3">
+                <label style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid #F6F4EF; cursor:pointer;">
+                  <div>
+                    <div style="font-size:14px; font-weight:600;">{{pref.label}}</div>
+                    <div style="font-size:12.5px; color:#6E736F;">{{pref.desc}}</div>
+                  </div>
+                  <input type="checkbox" checked="{{pref.checked}}" onChange="{{pref.onToggle}}" style="width:18px; height:18px; accent-color:#0C7C6E; cursor:pointer; flex-shrink:0;"/>
+                </label>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ========================================================= ADMIN ========================================================= -->
+  <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{false}}">
+    <div style="display:grid; grid-template-columns:230px minmax(0,1fr); min-height:calc(100vh - 73px);">
+      <aside style="background:#17191A; padding:24px 16px; display:flex; flex-direction:column; gap:4px;">
+        <div style="display:flex; align-items:center; gap:10px; padding:0 8px 22px;">
+          <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#0C7C6E,#0A4A42); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; color:#fff; font-size:15px;">C</div>
+          <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; color:#fff;">Admin</div>
+        </div>
+        <sc-for list="{{ adminNav }}" as="an" hint-placeholder-count="4">
+          <button onClick="{{an.onSelect}}" style="display:flex; align-items:center; gap:11px; text-align:left; padding:11px 12px; border-radius:9px; border:none; cursor:pointer; font-size:14px; font-weight:600; font-family:'Inter',sans-serif; background:{{an.bg}}; color:{{an.color}};">
+            <span style="width:7px; height:7px; border-radius:50%; background:{{an.dot}};"></span>{{an.label}}
+          </button>
+        </sc-for>
+        <button onClick="{{goHome}}" style="margin-top:auto; display:flex; align-items:center; gap:9px; text-align:left; padding:11px 12px; border-radius:9px; border:1px solid #3A3E3D; cursor:pointer; font-size:13.5px; font-weight:600; font-family:'Inter',sans-serif; background:transparent; color:#A1A6A1;" style-hover="background:#26292A; color:#E6E4DD;">← Back to store</button>
+      </aside>
+
+      <div style="padding:32px 36px 64px; background:#F6F4EF;">
+
+        <!-- OVERVIEW -->
+        <sc-if value="{{ isAdminOverview }}" hint-placeholder-val="{{true}}">
+          <div>
+            <h1 style="font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:700; margin:0 0 4px;">Overview</h1>
+            <p style="font-size:14px; color:#6E736F; margin:0 0 26px;">Store performance over the last 30 days.</p>
+
+            <div style="display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:18px; margin-bottom:30px;">
+              <sc-for list="{{ adminKpis }}" as="k" hint-placeholder-count="4">
+                <div style="background:#fff; border:1px solid #F0EEE8; border-radius:16px; padding:20px;">
+                  <div style="font-size:12.5px; color:#6E736F; font-weight:600; margin-bottom:10px;">{{k.label}}</div>
+                  <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:18px; margin-bottom:8px; line-height:1.3;">{{k.value}}</div>
+                  <div style="font-size:12px; font-weight:600; color:{{k.deltaColor}};">{{k.delta}}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:18px;">
+              <div style="background:#fff; border:1px solid #F0EEE8; border-radius:16px; padding:22px;">
+                <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; margin-bottom:20px;">Sales — last 7 days</div>
+                <div style="display:flex; align-items:flex-end; gap:14px; height:180px;">
+                  <sc-for list="{{ salesBars }}" as="b" hint-placeholder-count="7">
+                    <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; height:100%; justify-content:flex-end;">
+                      <div style="width:100%; border-radius:8px 8px 0 0; background:linear-gradient(180deg,#0C7C6E,#45BEB0); height:{{b.height}}; min-height:4px;"></div>
+                      <div style="font-size:11.5px; color:#6E736F; font-weight:600;">{{b.day}}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <div style="background:#fff; border:1px solid #F0EEE8; border-radius:16px; padding:22px;">
+                <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; margin-bottom:16px;">Top products</div>
+                <div style="display:flex; flex-direction:column; gap:14px;">
+                  <sc-for list="{{ topProducts }}" as="tp" hint-placeholder-count="4">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                      <div style="width:38px; height:38px; border-radius:9px; background:linear-gradient(135deg,{{tp.gradientFrom}},{{tp.gradientTo}}); flex-shrink:0; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.6); font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px;">{{tp.initial}}</div>
+                      <div style="flex:1; min-width:0;"><div style="font-size:13.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{tp.name}}</div><div style="font-size:12px; color:#6E736F;">{{tp.soldLabel}}</div></div>
+                      <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13.5px; flex-shrink:0;">{{tp.priceDisplay}}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ORDERS -->
+        <sc-if value="{{ isAdminOrders }}" hint-placeholder-val="{{false}}">
+          <div>
+            <h1 style="font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:700; margin:0 0 4px;">Orders</h1>
+            <p style="font-size:14px; color:#6E736F; margin:0 0 18px;">Click a status badge to advance it, or cancel an open order.</p>
+            <div style="display:flex; gap:9px; margin-bottom:18px; flex-wrap:wrap;">
+              <sc-for list="{{ orderFilterChips }}" as="f" hint-placeholder-count="5">
+                <button onClick="{{f.onSelect}}" style="padding:7px 15px; border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; border:1px solid {{f.border}}; background:{{f.bg}}; color:{{f.color}};">{{f.label}}</button>
+              </sc-for>
+            </div>
+            <div style="background:#fff; border:1px solid #F0EEE8; border-radius:16px; overflow:hidden;">
+              <div style="display:grid; grid-template-columns:1.1fr 1.4fr 1.1fr 0.6fr 1fr 1.1fr 0.9fr; padding:14px 22px; background:#F6F4EF; border-bottom:1px solid #F0EEE8; font-size:11.5px; font-weight:700; color:#6E736F; text-transform:uppercase; letter-spacing:0.04em;">
+                <div>Order</div><div>Customer</div><div>Date</div><div>Items</div><div>Total</div><div>Status</div><div style="text-align:right;">Action</div>
+              </div>
+              <sc-for list="{{ adminOrdersList }}" as="o" hint-placeholder-count="6">
+                <div style="display:grid; grid-template-columns:1.1fr 1.4fr 1.1fr 0.6fr 1fr 1.1fr 0.9fr; padding:14px 22px; border-bottom:1px solid #F6F4EF; font-size:13.5px; align-items:center;">
+                  <div style="font-weight:700;">{{o.id}}</div>
+                  <div style="color:#565B59; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;">{{o.customer}}</div>
+                  <div style="color:#6E736F;">{{o.date}}</div>
+                  <div style="color:#6E736F;">{{o.items}}</div>
+                  <div style="font-weight:700; font-family:'Space Grotesk',sans-serif;">{{o.totalDisplay}}</div>
+                  <div><span onClick="{{o.onAdvance}}" title="{{o.advanceHint}}" style="display:inline-block; padding:5px 12px; border-radius:20px; font-size:12px; font-weight:700; background:{{o.statusBg}}; color:{{o.statusColor}}; cursor:{{o.cursor}};">{{o.status}}</span></div>
+                  <div style="text-align:right;">
+                    <sc-if value="{{ o.canCancel }}" hint-placeholder-val="{{true}}">
+                      <button onClick="{{o.onCancel}}" style="border:1px solid #E6E4DD; background:#fff; border-radius:8px; padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer; color:#DC2626;" style-hover="background:#FEE2E2;">Cancel</button>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- PRODUCTS -->
+        <sc-if value="{{ isAdminProducts }}" hint-placeholder-val="{{false}}">
+          <div>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+              <div>
+                <h1 style="font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:700; margin:0 0 4px;">Products</h1>
+                <p style="font-size:14px; color:#6E736F; margin:0;">{{ productCountLabel }} in the catalog · edits go live in the store.</p>
+              </div>
+              <button onClick="{{ openProductModal }}" style="background:#0C7C6E; color:#fff; border:none; border-radius:10px; padding:12px 20px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; flex-shrink:0;" style-hover="background:#0A655A;">+ Add Product</button>
+            </div>
+            <div style="background:#fff; border:1px solid #F0EEE8; border-radius:16px; overflow:hidden;">
+              <div style="display:grid; grid-template-columns:2fr 1fr 1fr 1.2fr 1fr 1.3fr; padding:14px 22px; background:#F6F4EF; border-bottom:1px solid #F0EEE8; font-size:11.5px; font-weight:700; color:#6E736F; text-transform:uppercase; letter-spacing:0.04em;">
+                <div>Product</div><div>Category</div><div>Price</div><div>Stock</div><div>Status</div><div style="text-align:right;">Actions</div>
+              </div>
+              <sc-for list="{{ adminProductsList }}" as="p" hint-placeholder-count="8">
+                <div style="display:grid; grid-template-columns:2fr 1fr 1fr 1.2fr 1fr 1.3fr; padding:12px 22px; border-bottom:1px solid #F6F4EF; font-size:13.5px; align-items:center;">
+                  <div style="display:flex; align-items:center; gap:11px; min-width:0;">
+                    <div style="width:34px; height:34px; border-radius:8px; background:linear-gradient(135deg,{{p.gradientFrom}},{{p.gradientTo}}); flex-shrink:0; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.6); font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px;">{{p.initial}}</div>
+                    <div style="font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;">{{p.name}}</div>
+                  </div>
+                  <div style="color:#6E736F;">{{p.category}}</div>
+                  <div style="font-weight:700; font-family:'Space Grotesk',sans-serif;">{{p.priceDisplay}}</div>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <button onClick="{{p.onDecStock}}" title="Decrease stock" style="width:26px; height:26px; border:1px solid #E6E4DD; background:#fff; border-radius:7px; font-size:15px; cursor:pointer; color:#17191A; display:flex; align-items:center; justify-content:center;" style-hover="background:#F0EEE8;">−</button>
+                    <span style="min-width:30px; text-align:center; font-weight:600;">{{p.stock}}</span>
+                    <button onClick="{{p.onIncStock}}" title="Increase stock" style="width:26px; height:26px; border:1px solid #E6E4DD; background:#fff; border-radius:7px; font-size:15px; cursor:pointer; color:#17191A; display:flex; align-items:center; justify-content:center;" style-hover="background:#F0EEE8;">+</button>
+                  </div>
+                  <div><span style="display:inline-block; padding:5px 12px; border-radius:20px; font-size:12px; font-weight:700; background:{{p.stockBg}}; color:{{p.stockColor}};">{{p.stockLabel}}</span></div>
+                  <div style="display:flex; align-items:center; gap:8px; justify-content:flex-end;">
+                    <button onClick="{{p.onToggleFeatured}}" title="Toggle featured" style="background:none; border:none; cursor:pointer; padding:4px; font-size:16px; color:{{p.featuredColor}}; line-height:1;">★</button>
+                    <button onClick="{{p.onRestock}}" title="Restock +25" style="border:1px solid #E6E4DD; background:#fff; border-radius:7px; padding:6px 10px; font-size:12px; font-weight:600; cursor:pointer; color:#17191A;" style-hover="background:#F0EEE8;">Restock</button>
+                    <button onClick="{{p.onDelete}}" title="Delete product" style="background:none; border:none; cursor:pointer; color:#A1A6A1; padding:4px; display:flex;" style-hover="color:#DC2626;">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"></path></svg>
+                    </button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- CUSTOMERS -->
+        <sc-if value="{{ isAdminCustomers }}" hint-placeholder-val="{{false}}">
+          <div>
+            <h1 style="font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:700; margin:0 0 4px;">Customers</h1>
+            <p style="font-size:14px; color:#6E736F; margin:0 0 24px;">{{ customerCountLabel }} registered.</p>
+            <div style="background:#fff; border:1px solid #F0EEE8; border-radius:16px; overflow:hidden;">
+              <div style="display:grid; grid-template-columns:1.5fr 1.9fr 0.7fr 1fr 0.9fr 1.3fr; padding:14px 22px; background:#F6F4EF; border-bottom:1px solid #F0EEE8; font-size:11.5px; font-weight:700; color:#6E736F; text-transform:uppercase; letter-spacing:0.04em;">
+                <div>Name</div><div>Email</div><div>Orders</div><div>Spent</div><div>Status</div><div style="text-align:right;">Actions</div>
+              </div>
+              <sc-for list="{{ adminCustomersList }}" as="c" hint-placeholder-count="6">
+                <div style="display:grid; grid-template-columns:1.5fr 1.9fr 0.7fr 1fr 0.9fr 1.3fr; padding:13px 22px; border-bottom:1px solid #F6F4EF; font-size:13.5px; align-items:center;">
+                  <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                    <div style="width:32px; height:32px; border-radius:50%; background:#17191A; color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; flex-shrink:0;">{{c.initials}}</div>
+                    <span style="font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;">{{c.name}}</span>
+                  </div>
+                  <div style="color:#6E736F; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;">{{c.email}}</div>
+                  <div style="color:#565B59;">{{c.orders}}</div>
+                  <div style="font-weight:700; font-family:'Space Grotesk',sans-serif;">{{c.spentDisplay}}</div>
+                  <div><span style="display:inline-block; padding:5px 11px; border-radius:20px; font-size:12px; font-weight:700; background:{{c.statusBg}}; color:{{c.statusColor}};">{{c.statusLabel}}</span></div>
+                  <div style="text-align:right;">
+                    <button onClick="{{c.onToggle}}" style="border:1px solid #E6E4DD; background:#fff; border-radius:8px; padding:7px 14px; font-size:12.5px; font-weight:600; cursor:pointer; color:#17191A;" style-hover="background:#F0EEE8;">{{c.actionLabel}}</button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ROLES & ACCESS -->
+        <sc-if value="{{ isAdminTeam }}" hint-placeholder-val="{{false}}">
+          <div>
+            <h1 style="font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:700; margin:0 0 4px;">Roles &amp; Access</h1>
+            <p style="font-size:14px; color:#6E736F; margin:0 0 24px;">Manage team members and what each role is allowed to do.</p>
+
+            <div style="background:#fff; border:1px solid #F0EEE8; border-radius:16px; overflow:hidden; margin-bottom:26px;">
+              <div style="display:grid; grid-template-columns:1.5fr 2fr 1fr 1.6fr; padding:14px 22px; background:#F6F4EF; border-bottom:1px solid #F0EEE8; font-size:11.5px; font-weight:700; color:#6E736F; text-transform:uppercase; letter-spacing:0.04em;">
+                <div>Member</div><div>Email</div><div>Role</div><div style="text-align:right;">Assign role</div>
+              </div>
+              <sc-for list="{{ teamList }}" as="m" hint-placeholder-count="4">
+                <div style="display:grid; grid-template-columns:1.5fr 2fr 1fr 1.6fr; padding:13px 22px; border-bottom:1px solid #F6F4EF; font-size:13.5px; align-items:center;">
+                  <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                    <div style="width:32px; height:32px; border-radius:50%; background:#17191A; color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; flex-shrink:0;">{{m.initials}}</div>
+                    <span style="font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;">{{m.name}}</span>
+                  </div>
+                  <div style="color:#6E736F; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;">{{m.email}}</div>
+                  <div><span style="display:inline-block; padding:5px 12px; border-radius:20px; font-size:12px; font-weight:700; background:{{m.roleBg}}; color:{{m.roleColor}};">{{m.role}}</span></div>
+                  <div style="text-align:right;">
+                    <sc-if value="{{ m.isOwner }}" hint-placeholder-val="{{false}}">
+                      <span style="font-size:12.5px; color:#A1A6A1;">Full access</span>
+                    </sc-if>
+                    <sc-if value="{{ !m.isOwner }}" hint-placeholder-val="{{true}}">
+                      <div style="display:inline-flex; gap:6px;">
+                        <button onClick="{{m.onSetManager}}" style="border:1px solid #E6E4DD; background:#fff; border-radius:7px; padding:6px 10px; font-size:12px; font-weight:600; cursor:pointer; color:#17191A;" style-hover="background:#F0EEE8;">Manager</button>
+                        <button onClick="{{m.onSetStaff}}" style="border:1px solid #E6E4DD; background:#fff; border-radius:7px; padding:6px 10px; font-size:12px; font-weight:600; cursor:pointer; color:#17191A;" style-hover="background:#F0EEE8;">Staff</button>
+                        <button onClick="{{m.onSetSupport}}" style="border:1px solid #E6E4DD; background:#fff; border-radius:7px; padding:6px 10px; font-size:12px; font-weight:600; cursor:pointer; color:#17191A;" style-hover="background:#F0EEE8;">Support</button>
+                      </div>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="font-size:13px; font-weight:700; color:#6E736F; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:14px;">Role Permissions</div>
+            <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px;">
+              <sc-for list="{{ permissionRoles }}" as="pr" hint-placeholder-count="3">
+                <div style="background:#fff; border:1px solid #F0EEE8; border-radius:16px; padding:20px;">
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+                    <span style="width:9px; height:9px; border-radius:50%; background:{{pr.roleColor}};"></span>
+                    <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px;">{{pr.role}}</span>
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:2px;">
+                    <sc-for list="{{ pr.perms }}" as="pm" hint-placeholder-count="5">
+                      <label style="display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid #F6F4EF; cursor:pointer; font-size:13.5px;">
+                        <span>{{pm.label}}</span>
+                        <input type="checkbox" checked="{{pm.checked}}" onChange="{{pm.onToggle}}" style="width:17px; height:17px; accent-color:#0C7C6E; cursor:pointer;"/>
+                      </label>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+      </div>
+    </div>
+  </sc-if>
+
+  </main>
+
+  <sc-if value="{{ showFullHeader }}" hint-placeholder-val="{{true}}">
+    <footer style="background:#17191A; padding:36px 40px; text-align:center; color:#6E736F; font-size:13px;">
+      © 2026 CloudMart · Fast, free shipping · 30-day returns · Secure checkout
+    </footer>
+  </sc-if>
+
+  <sc-if value="{{ productModalOpen }}" hint-placeholder-val="{{false}}">
+    <div onClick="{{ closeProductModal }}" style="position:fixed; inset:0; background:rgba(15,23,42,0.5); z-index:150; display:flex; align-items:center; justify-content:center; padding:24px;">
+      <div onClick="{{ stopEvt }}" style="width:440px; max-width:100%; background:#fff; border-radius:18px; padding:28px; box-shadow:0 20px 50px rgba(15,23,42,0.3);">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+          <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:19px;">Add Product</div>
+          <button onClick="{{ closeProductModal }}" style="background:none; border:none; cursor:pointer; color:#A1A6A1; font-size:22px; line-height:1;">×</button>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div>
+            <div style="font-size:12.5px; font-weight:600; color:#6E736F; margin-bottom:6px;">Product name</div>
+            <input value="{{newProduct.name}}" onChange="{{ onNewProductName }}" placeholder="e.g. Nova Wireless Charger" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid #E6E4DD; font-size:14px; font-family:'Inter',sans-serif;"/>
+          </div>
+          <div>
+            <div style="font-size:12.5px; font-weight:600; color:#6E736F; margin-bottom:6px;">Category</div>
+            <select value="{{newProduct.category}}" onChange="{{ onNewProductCategory }}" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid #E6E4DD; font-size:14px; font-family:'Inter',sans-serif; background:#fff; color:#17191A;">
+              <option value="Audio">Audio</option>
+              <option value="Wearables">Wearables</option>
+              <option value="Computing">Computing</option>
+              <option value="Smart Home">Smart Home</option>
+              <option value="Gaming">Gaming</option>
+              <option value="Accessories">Accessories</option>
+            </select>
+          </div>
+          <div style="display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px;">
+            <div>
+              <div style="font-size:12.5px; font-weight:600; color:#6E736F; margin-bottom:6px;">Price (USD base)</div>
+              <input value="{{newProduct.price}}" onChange="{{ onNewProductPrice }}" placeholder="e.g. 79" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid #E6E4DD; font-size:14px; font-family:'Inter',sans-serif;"/>
+            </div>
+            <div>
+              <div style="font-size:12.5px; font-weight:600; color:#6E736F; margin-bottom:6px;">Stock</div>
+              <input value="{{newProduct.stock}}" onChange="{{ onNewProductStock }}" placeholder="e.g. 50" style="width:100%; padding:12px 14px; border-radius:9px; border:1px solid #E6E4DD; font-size:14px; font-family:'Inter',sans-serif;"/>
+            </div>
+          </div>
+          <sc-if value="{{ newProductError }}" hint-placeholder-val="{{false}}">
+            <div style="color:#DC2626; font-size:12.5px;">{{ newProductError }}</div>
+          </sc-if>
+          <div style="display:flex; gap:12px; margin-top:6px;">
+            <button onClick="{{ closeProductModal }}" style="flex:1; background:#fff; border:1px solid #E6E4DD; color:#17191A; border-radius:10px; padding:12px; font-size:14px; font-weight:600; cursor:pointer;" style-hover="background:#F6F4EF;">Cancel</button>
+            <button onClick="{{ createProduct }}" style="flex:1; background:#0C7C6E; border:none; color:#fff; border-radius:10px; padding:12px; font-size:14px; font-weight:700; cursor:pointer;" style-hover="background:#0A655A;">Add Product</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{false}}">
+    <div style="position:fixed; bottom:28px; left:50%; transform:translateX(-50%); background:#17191A; color:#fff; padding:13px 24px; border-radius:12px; font-size:14px; font-weight:600; box-shadow:0 10px 30px rgba(15,23,42,0.3); z-index:200; animation:toastIn 0.25s ease;">{{ toast }}</div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+const CATEGORY_STYLE = {
+  'Audio': ['#0C7C6E', '#0A4A42'],
+  'Wearables': ['#0EA5E9', '#17191A'],
+  'Computing': ['#6366F1', '#093B35'],
+  'Smart Home': ['#38BDF8', '#17191A'],
+  'Gaming': ['#8B5CF6', '#093B35'],
+  'Accessories': ['#45BEB0', '#26292A']
+};
+
+const RAW_PRODUCTS = [
+  { id: 'p1', name: 'Nimbus Pro Wireless Earbuds', category: 'Audio', price: 149, rating: 4.6, reviews: 1284, stock: 42, featured: true, description: 'Adaptive noise cancellation, 30-hour battery with the case, and a snug ergonomic fit tuned for all-day wear. Pairs instantly across your devices.' },
+  { id: 'p2', name: 'Aria Studio Headphones', category: 'Audio', price: 249, rating: 4.8, reviews: 892, stock: 15, featured: true, description: 'Studio-grade over-ear headphones with planar drivers, plush memory-foam ear cups, and a foldable frame for travel.' },
+  { id: 'p3', name: 'Pulse Fitness Band', category: 'Wearables', price: 89, rating: 4.3, reviews: 2210, stock: 120, featured: true, description: 'Tracks heart rate, sleep, and 20+ workout modes with a 10-day battery. Water-resistant to 50m.' },
+  { id: 'p4', name: 'Orbit Smartwatch SE', category: 'Wearables', price: 199, rating: 4.5, reviews: 1567, stock: 8, featured: true, description: 'A vibrant always-on display, built-in GPS, and seamless notifications keep you connected without reaching for your phone.' },
+  { id: 'p5', name: 'Vector 14 Ultrabook', category: 'Computing', price: 1299, rating: 4.7, reviews: 430, stock: 5, featured: true, description: 'A 14-inch ultraportable with all-day battery life, a fanless design, and enough power for serious multitasking.' },
+  { id: 'p6', name: 'Cortex Mechanical Keyboard', category: 'Computing', price: 129, rating: 4.6, reviews: 980, stock: 60, featured: false, description: 'Hot-swappable switches, per-key RGB, and a machined aluminum frame built for long typing sessions.' },
+  { id: 'p7', name: 'Halo Smart Speaker', category: 'Smart Home', price: 79, rating: 4.2, reviews: 1890, stock: 75, featured: true, description: 'Room-filling 360° sound with a built-in voice assistant and smart-home hub for lights, locks, and thermostats.' },
+  { id: 'p8', name: 'Beacon Video Doorbell', category: 'Smart Home', price: 159, rating: 4.4, reviews: 654, stock: 30, featured: false, description: '1440p HDR video, two-way audio, and on-device person detection — no subscription required for live view.' },
+  { id: 'p9', name: 'Apex Gaming Mouse', category: 'Gaming', price: 59, rating: 4.7, reviews: 3021, stock: 200, featured: true, description: 'A 26,000 DPI optical sensor, sub-1ms wireless latency, and a 68-hour battery in a featherweight 58g shell.' },
+  { id: 'p10', name: 'Ridge Gaming Chair', category: 'Gaming', price: 349, rating: 4.5, reviews: 312, stock: 12, featured: false, description: '4D armrests, a steel frame rated to 300lbs, and breathable mesh built for marathon sessions.' },
+  { id: 'p11', name: 'Drift Travel Backpack', category: 'Accessories', price: 69, rating: 4.6, reviews: 1120, stock: 90, featured: true, description: 'A weatherproof 24L shell with a padded 16-inch laptop sleeve and a hidden anti-theft back pocket.' },
+  { id: 'p12', name: 'Flux Fast-Charge Cable Kit', category: 'Accessories', price: 24, rating: 4.1, reviews: 2456, stock: 300, featured: false, description: 'Three braided 100W USB-C cables built to survive years of daily travel.' }
+];
+
+const CATEGORIES_LIST = ['All', 'Audio', 'Wearables', 'Computing', 'Smart Home', 'Gaming', 'Accessories'];
+
+const EGP_RATE = 50;
+function money(n) { return 'EGP ' + (n * EGP_RATE).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function fmtCount(n) { return n.toLocaleString('en-US'); }
+
+function buildProduct(p) {
+  const [from, to] = CATEGORY_STYLE[p.category] || ['#0C7C6E', '#17191A'];
+  let stockLabel, stockColor, stockBg, stockNote;
+  if (p.stock === 0) { stockLabel = 'Out of Stock'; stockColor = '#DC2626'; stockBg = '#FEE2E2'; stockNote = 'Currently unavailable'; }
+  else if (p.stock <= 20) { stockLabel = 'Low Stock'; stockColor = '#D97706'; stockBg = '#FEF3C7'; stockNote = `Only ${p.stock} left`; }
+  else { stockLabel = 'In Stock'; stockColor = '#16A34A'; stockBg = '#DCFCE7'; stockNote = `${p.stock} available`; }
+  return {
+    ...p,
+    initial: p.name.charAt(0),
+    priceDisplay: money(p.price),
+    reviewsDisplay: fmtCount(p.reviews),
+    gradientFrom: from,
+    gradientTo: to,
+    stockLabel, stockColor, stockBg, stockNote
+  };
+}
+
+const PRODUCTS = RAW_PRODUCTS.map(buildProduct);
+
+const INITIAL_ORDERS = [
+  { id: 'CM-10234', date: 'Jul 1, 2026', status: 'Delivered', total: 238, itemCount: 2 },
+  { id: 'CM-10198', date: 'Jun 24, 2026', status: 'Shipped', total: 129, itemCount: 1 },
+  { id: 'CM-10142', date: 'Jun 10, 2026', status: 'Processing', total: 349, itemCount: 1 }
+];
+
+const STATUS_STYLE = {
+  'Processing': ['#D97706', '#FEF3C7'],
+  'Shipped': ['#0A655A', '#CFE9E3'],
+  'Delivered': ['#16A34A', '#DCFCE7']
+};
+
+function buildOrder(o) {
+  const [color, bg] = STATUS_STYLE[o.status] || ['#6E736F', '#F0EEE8'];
+  return { ...o, totalDisplay: money(o.total), statusColor: color, statusBg: bg };
+}
+
+class Component extends DCLogic {
+  state = {
+    route: 'home',
+    search: '',
+    showAutocomplete: false,
+    selectedProductId: null,
+    quantity: 1,
+    selectedImageIndex: 0,
+    filters: { category: 'All', maxPrice: 1500, minRating: 0 },
+    sortBy: 'relevance',
+    catalogVisibleCount: 9,
+    cart: {},
+    products: PRODUCTS,
+    user: null,
+    loginForm: { email: '', password: '' },
+    loginErrors: {},
+    registerForm: { name: '', email: '', password: '', confirm: '', terms: false },
+    registerErrors: {},
+    checkout: { fullName: '', address: '', city: '', zip: '', country: '', payment: 'card', cardNumber: '', cardExpiry: '', cardCvc: '' },
+    checkoutErrors: {},
+    dashboardTab: 'orders',
+    adminTab: 'overview',
+    orderFilter: 'All',
+    productModalOpen: false,
+    newProduct: { name: '', category: 'Audio', price: '', stock: '' },
+    newProductError: '',
+    permissions: {
+      Manager: { products: true, orders: true, refunds: true, customers: true, analytics: true },
+      Staff: { products: true, orders: true, refunds: false, customers: false, analytics: true },
+      Support: { products: false, orders: true, refunds: true, customers: true, analytics: false }
+    },
+    team: [
+      { name: 'Alex Johnson', email: 'alex.johnson@example.com', role: 'Owner' },
+      { name: 'Nadia Hassan', email: 'nadia.hassan@example.com', role: 'Manager' },
+      { name: 'Tamer Fouad', email: 'tamer.fouad@example.com', role: 'Staff' },
+      { name: 'Rana Yassin', email: 'rana.yassin@example.com', role: 'Support' }
+    ],
+    adminOrders: [
+      { id: 'CM-10234', customer: 'Alex Johnson', date: 'Jul 1, 2026', status: 'Delivered', total: 238, items: 2 },
+      { id: 'CM-10231', customer: 'Mona Farouk', date: 'Jul 1, 2026', status: 'Shipped', total: 149, items: 1 },
+      { id: 'CM-10228', customer: 'Karim Adel', date: 'Jun 30, 2026', status: 'Processing', total: 408, items: 3 },
+      { id: 'CM-10225', customer: 'Sara Nabil', date: 'Jun 29, 2026', status: 'Delivered', total: 79, items: 1 },
+      { id: 'CM-10222', customer: 'Youssef Hany', date: 'Jun 28, 2026', status: 'Cancelled', total: 349, items: 1 },
+      { id: 'CM-10219', customer: 'Laila Samir', date: 'Jun 27, 2026', status: 'Shipped', total: 218, items: 2 },
+      { id: 'CM-10215', customer: 'Omar Tarek', date: 'Jun 26, 2026', status: 'Processing', total: 129, items: 1 }
+    ],
+    adminCustomers: [
+      { name: 'Alex Johnson', email: 'alex.johnson@example.com', orders: 12, spent: 2840, joined: 'Jan 2025', active: true },
+      { name: 'Mona Farouk', email: 'mona.farouk@example.com', orders: 8, spent: 1620, joined: 'Mar 2025', active: true },
+      { name: 'Karim Adel', email: 'karim.adel@example.com', orders: 5, spent: 980, joined: 'Apr 2025', active: true },
+      { name: 'Sara Nabil', email: 'sara.nabil@example.com', orders: 15, spent: 3510, joined: 'Nov 2024', active: true },
+      { name: 'Youssef Hany', email: 'youssef.hany@example.com', orders: 3, spent: 540, joined: 'Jun 2025', active: false },
+      { name: 'Laila Samir', email: 'laila.samir@example.com', orders: 9, spent: 1975, joined: 'Feb 2025', active: true }
+    ],
+    profileForm: { name: 'Alex Johnson', email: 'alex.johnson@example.com', phone: '', address: '2450 Bayview Terrace, Austin, TX' },
+    passwordForm: { current: '', next: '', confirm: '' },
+    prefs: { orders: true, promos: true, newsletter: false },
+    ordersList: INITIAL_ORDERS.map(buildOrder),
+    toast: null
+  };
+
+  _toastTimer = null;
+  showToast = (msg) => {
+    if (this._toastTimer) clearTimeout(this._toastTimer);
+    this.setState({ toast: msg });
+    this._toastTimer = setTimeout(() => this.setState({ toast: null }), 2200);
+  };
+
+  goHome = () => this.navigate('home');
+  goCatalog = () => this.navigate('catalog');
+  goCart = () => this.navigate('cart');
+  goCheckout = () => this.navigate('checkout');
+  goLogin = () => this.navigate('login');
+  goRegister = () => this.navigate('register');
+  goDashboard = () => this.navigate('dashboard');
+  goAdmin = () => this.navigate('admin');
+  setAdminOverview = () => this.setState({ adminTab: 'overview' });
+  setAdminOrders = () => this.setState({ adminTab: 'orders' });
+  setAdminProducts = () => this.setState({ adminTab: 'products' });
+  setAdminCustomers = () => this.setState({ adminTab: 'customers' });
+  setAdminTeam = () => this.setState({ adminTab: 'team' });
+  cycleOrderStatus = (id) => {
+    const flow = ['Processing', 'Shipped', 'Delivered'];
+    this.setState(s => ({
+      adminOrders: s.adminOrders.map(o => {
+        if (o.id !== id) return o;
+        const i = flow.indexOf(o.status);
+        if (i === -1 || i === flow.length - 1) return o;
+        return { ...o, status: flow[i + 1] };
+      })
+    }));
+    this.showToast('Order status updated');
+  };
+  cancelOrder = (id) => {
+    this.setState(s => ({ adminOrders: s.adminOrders.map(o => o.id === id ? { ...o, status: 'Cancelled' } : o) }));
+    this.showToast('Order cancelled');
+  };
+  setOrderFilter = (f) => this.setState({ orderFilter: f });
+
+  adjustStock = (id, delta) => {
+    this.setState(s => ({
+      products: s.products.map(p => p.id === id ? buildProduct({ ...p, stock: Math.max(0, p.stock + delta) }) : p)
+    }));
+  };
+  restock = (id) => {
+    this.setState(s => ({
+      products: s.products.map(p => p.id === id ? buildProduct({ ...p, stock: p.stock + 25 }) : p)
+    }));
+    this.showToast('Restocked +25 units');
+  };
+  toggleFeatured = (id) => {
+    this.setState(s => ({ products: s.products.map(p => p.id === id ? { ...p, featured: !p.featured } : p) }));
+  };
+  deleteProduct = (id) => {
+    this.setState(s => ({ products: s.products.filter(p => p.id !== id) }));
+    this.showToast('Product removed');
+  };
+  openProductModal = () => this.setState({ productModalOpen: true, newProduct: { name: '', category: 'Audio', price: '', stock: '' }, newProductError: '' });
+  closeProductModal = () => this.setState({ productModalOpen: false });
+  onNewProductField = (field, value) => this.setState(s => ({ newProduct: { ...s.newProduct, [field]: value } }));
+  onNewProductName = (e) => this.onNewProductField('name', e.target.value);
+  onNewProductCategory = (e) => this.onNewProductField('category', e.target.value);
+  onNewProductPrice = (e) => this.onNewProductField('price', e.target.value);
+  onNewProductStock = (e) => this.onNewProductField('stock', e.target.value);
+  createProduct = () => {
+    const np = this.state.newProduct;
+    const price = Number(np.price), stock = Number(np.stock);
+    if (!np.name.trim() || !price || price <= 0 || isNaN(stock) || stock < 0) {
+      this.setState({ newProductError: 'Enter a name, a price above 0, and a valid stock count.' });
+      return;
+    }
+    const id = 'p' + Math.floor(1000 + Math.random() * 9000);
+    const built = buildProduct({ id, name: np.name.trim(), category: np.category, price, rating: 4.5, reviews: 0, stock, featured: false, description: 'Newly added product.' });
+    this.setState(s => ({ products: [built, ...s.products], productModalOpen: false }));
+    this.showToast('Product added to catalog');
+  };
+
+  toggleCustomerActive = (email) => {
+    this.setState(s => ({ adminCustomers: s.adminCustomers.map(c => c.email === email ? { ...c, active: !c.active } : c) }));
+  };
+
+  setTeamRole = (email, role) => {
+    this.setState(s => ({ team: s.team.map(m => m.email === email ? { ...m, role } : m) }));
+  };
+  togglePermission = (role, key) => {
+    this.setState(s => ({ permissions: { ...s.permissions, [role]: { ...s.permissions[role], [key]: !s.permissions[role][key] } } }));
+  };
+  stopEvt = (e) => e.stopPropagation();
+
+  selectCardPayment = () => this.selectPayment('card');
+  selectPaypalPayment = () => this.selectPayment('paypal');
+  selectApplePayPayment = () => this.selectPayment('applepay');
+  setTabOrders = () => this.setDashboardTab('orders');
+  setTabSettings = () => this.setDashboardTab('settings');
+
+  navigate = (route) => {
+    const updates = { route, showAutocomplete: false };
+    if (route === 'product') { updates.quantity = 1; updates.selectedImageIndex = 0; }
+    this.setState(updates);
+  };
+
+  viewProduct = (id) => { this.setState({ route: 'product', selectedProductId: id, quantity: 1, selectedImageIndex: 0 }); };
+
+  selectImage = (i) => this.setState({ selectedImageIndex: i });
+  incrementQty = () => this.setState(s => ({ quantity: Math.min(s.quantity + 1, 20) }));
+  decrementQty = () => this.setState(s => ({ quantity: Math.max(1, s.quantity - 1) }));
+
+  addToCartQty = (id, qty) => {
+    this.setState(s => {
+      const cart = { ...s.cart };
+      cart[id] = (cart[id] || 0) + qty;
+      return { cart };
+    });
+  };
+
+  addSelectedToCart = () => {
+    const id = this.state.selectedProductId;
+    this.addToCartQty(id, this.state.quantity);
+    this.showToast('Added to cart');
+  };
+
+  buyNow = () => {
+    const id = this.state.selectedProductId;
+    this.addToCartQty(id, this.state.quantity);
+    this.setState({ route: 'checkout' });
+  };
+
+  quickAdd = (e, id) => {
+    e.stopPropagation();
+    this.addToCartQty(id, 1);
+    this.showToast('Added to cart');
+  };
+
+  incrementCartQty = (id) => this.setState(s => ({ cart: { ...s.cart, [id]: Math.min((s.cart[id] || 0) + 1, 20) } }));
+  decrementCartQty = (id) => this.setState(s => {
+    const q = (s.cart[id] || 0) - 1;
+    const cart = { ...s.cart };
+    if (q <= 0) delete cart[id]; else cart[id] = q;
+    return { cart };
+  });
+  removeFromCart = (id) => this.setState(s => {
+    const cart = { ...s.cart };
+    delete cart[id];
+    return { cart };
+  });
+
+  onSearchChange = (e) => {
+    const v = e.target.value;
+    this.setState({ search: v, showAutocomplete: v.trim().length > 0 });
+  };
+  selectAutocomplete = (id) => { this.setState({ search: '', showAutocomplete: false }); this.viewProduct(id); };
+
+  selectCategory = (cat) => this.setState(s => ({ filters: { ...s.filters, category: cat.label }, route: 'catalog', catalogVisibleCount: 9 }));
+  onMaxPriceChange = (e) => this.setState(s => ({ filters: { ...s.filters, maxPrice: Number(e.target.value) } }));
+  selectMinRating = (v) => this.setState(s => ({ filters: { ...s.filters, minRating: v } }));
+  resetFilters = () => this.setState({ filters: { category: 'All', maxPrice: 1500, minRating: 0 }, search: '', catalogVisibleCount: 9 });
+  onSortChange = (e) => this.setState({ sortBy: e.target.value });
+  loadMore = () => this.setState(s => ({ catalogVisibleCount: s.catalogVisibleCount + 9 }));
+
+  onLoginEmailChange = (e) => this.setState(s => ({ loginForm: { ...s.loginForm, email: e.target.value } }));
+  onLoginPasswordChange = (e) => this.setState(s => ({ loginForm: { ...s.loginForm, password: e.target.value } }));
+  submitLogin = () => {
+    const { email, password } = this.state.loginForm;
+    const errors = {};
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) errors.email = 'Enter a valid email address.';
+    if (!password || password.length < 6) errors.password = 'Password must be at least 6 characters.';
+    if (Object.keys(errors).length) { this.setState({ loginErrors: errors }); return; }
+    const name = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    this.setState(s => ({ user: { name, email }, profileForm: { ...s.profileForm, name, email }, route: 'dashboard', loginErrors: {}, dashboardTab: 'orders' }));
+    this.showToast(`Welcome, ${name}`);
+  };
+
+  onRegisterNameChange = (e) => this.setState(s => ({ registerForm: { ...s.registerForm, name: e.target.value } }));
+  onRegisterEmailChange = (e) => this.setState(s => ({ registerForm: { ...s.registerForm, email: e.target.value } }));
+  onRegisterPasswordChange = (e) => this.setState(s => ({ registerForm: { ...s.registerForm, password: e.target.value } }));
+  onRegisterConfirmChange = (e) => this.setState(s => ({ registerForm: { ...s.registerForm, confirm: e.target.value } }));
+  onRegisterTermsChange = (e) => this.setState(s => ({ registerForm: { ...s.registerForm, terms: e.target.checked } }));
+  submitRegister = () => {
+    const f = this.state.registerForm;
+    const errors = {};
+    if (!f.name || f.name.trim().length < 2) errors.name = 'Enter your full name.';
+    if (!f.email || !/^\S+@\S+\.\S+$/.test(f.email)) errors.email = 'Enter a valid email address.';
+    if (!f.password || f.password.length < 6) errors.password = 'Password must be at least 6 characters.';
+    if (f.confirm !== f.password) errors.confirm = 'Passwords do not match.';
+    if (!f.terms) errors.terms = 'You must accept the terms to continue.';
+    if (Object.keys(errors).length) { this.setState({ registerErrors: errors }); return; }
+    this.setState(s => ({ user: { name: f.name, email: f.email }, profileForm: { ...s.profileForm, name: f.name, email: f.email }, route: 'dashboard', registerErrors: {}, dashboardTab: 'orders' }));
+    this.showToast(`Account created — welcome, ${f.name}`);
+  };
+
+  logout = () => { this.setState({ user: null, route: 'home' }); this.showToast('Signed out'); };
+
+  setCheckoutField = (field, value) => this.setState(s => ({ checkout: { ...s.checkout, [field]: value } }));
+  onCheckoutField_fullName = (e) => this.setCheckoutField('fullName', e.target.value);
+  onCheckoutField_address = (e) => this.setCheckoutField('address', e.target.value);
+  onCheckoutField_city = (e) => this.setCheckoutField('city', e.target.value);
+  onCheckoutField_zip = (e) => this.setCheckoutField('zip', e.target.value);
+  onCheckoutField_country = (e) => this.setCheckoutField('country', e.target.value);
+  onCheckoutField_cardNumber = (e) => this.setCheckoutField('cardNumber', e.target.value);
+  onCheckoutField_cardExpiry = (e) => this.setCheckoutField('cardExpiry', e.target.value);
+  onCheckoutField_cardCvc = (e) => this.setCheckoutField('cardCvc', e.target.value);
+  selectPayment = (v) => this.setCheckoutField('payment', v);
+
+  placeOrder = () => {
+    const c = this.state.checkout;
+    const errors = {};
+    if (!c.fullName || !c.address || !c.city || !c.zip || !c.country) errors.hasShippingError = true;
+    if (c.payment === 'card' && (!c.cardNumber || !c.cardExpiry || !c.cardCvc)) errors.hasShippingError = errors.hasShippingError || false;
+    if (errors.hasShippingError) { this.setState({ checkoutErrors: errors }); return; }
+    if (c.payment === 'card' && (!c.cardNumber || !c.cardExpiry || !c.cardCvc)) { this.setState({ checkoutErrors: { hasShippingError: false, hasPaymentError: true } }); return; }
+    const cart = this.state.cart;
+    const ids = Object.keys(cart);
+    if (ids.length === 0) return;
+    const totals = this.computeTotals(cart);
+    const newOrder = buildOrder({
+      id: 'CM-' + Math.floor(10300 + Math.random() * 500),
+      date: 'Jul 3, 2026',
+      status: 'Processing',
+      total: totals.total,
+      itemCount: ids.reduce((sum, id) => sum + cart[id], 0)
+    });
+    this.setState(s => ({
+      ordersList: [newOrder, ...s.ordersList],
+      cart: {},
+      route: 'dashboard',
+      dashboardTab: 'orders',
+      checkoutErrors: {},
+      checkout: { fullName: '', address: '', city: '', zip: '', country: '', payment: 'card', cardNumber: '', cardExpiry: '', cardCvc: '' }
+    }));
+    this.showToast('Order placed successfully');
+  };
+
+  setDashboardTab = (t) => this.setState({ dashboardTab: t });
+  onProfileNameChange = (e) => this.setState(s => ({ profileForm: { ...s.profileForm, name: e.target.value } }));
+  onProfileEmailChange = (e) => this.setState(s => ({ profileForm: { ...s.profileForm, email: e.target.value } }));
+  onProfilePhoneChange = (e) => this.setState(s => ({ profileForm: { ...s.profileForm, phone: e.target.value } }));
+  onProfileAddressChange = (e) => this.setState(s => ({ profileForm: { ...s.profileForm, address: e.target.value } }));
+  saveProfile = () => this.showToast('Profile updated');
+
+  onPasswordCurrentChange = (e) => this.setState(s => ({ passwordForm: { ...s.passwordForm, current: e.target.value } }));
+  onPasswordNextChange = (e) => this.setState(s => ({ passwordForm: { ...s.passwordForm, next: e.target.value } }));
+  onPasswordConfirmChange = (e) => this.setState(s => ({ passwordForm: { ...s.passwordForm, confirm: e.target.value } }));
+  updatePassword = () => {
+    const p = this.state.passwordForm;
+    if (!p.current || !p.next) { this.showToast('Enter your current and new password'); return; }
+    if (p.next.length < 6) { this.showToast('New password must be at least 6 characters'); return; }
+    if (p.next !== p.confirm) { this.showToast('New passwords do not match'); return; }
+    this.setState({ passwordForm: { current: '', next: '', confirm: '' } });
+    this.showToast('Password updated');
+  };
+  togglePref = (key) => this.setState(s => ({ prefs: { ...s.prefs, [key]: !s.prefs[key] } }));
+
+  computeTotals(cart) {
+    const products = this.state.products;
+    const ids = Object.keys(cart);
+    const subtotal = ids.reduce((sum, id) => {
+      const p = products.find(pp => pp.id === id);
+      return sum + (p ? p.price * cart[id] : 0);
+    }, 0);
+    const shipping = ids.length === 0 ? 0 : (subtotal >= 100 ? 0 : 9.99);
+    const tax = subtotal * 0.08;
+    const total = subtotal + shipping + tax;
+    return { subtotal, shipping, tax, total };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const route = s.route;
+
+    const isHome = route === 'home';
+    const isCatalog = route === 'catalog';
+    const isProduct = route === 'product';
+    const isCart = route === 'cart';
+    const isCheckout = route === 'checkout';
+    const isLogin = route === 'login';
+    const isRegister = route === 'register';
+    const isDashboard = route === 'dashboard';
+    const isAdmin = route === 'admin';
+
+    const showFullHeader = !isLogin && !isRegister && !isAdmin;
+    const showAuthHeader = isLogin || isRegister;
+    const showAdminHeader = isAdmin;
+    const showCategoryBar = isHome || isCatalog;
+
+    const cartCount = Object.values(s.cart).reduce((a, b) => a + b, 0);
+    const cartIsEmpty = cartCount === 0;
+    const totals = this.computeTotals(s.cart);
+    const cartItemsDetailed = Object.keys(s.cart)
+      .map(id => ({ id, p: s.products.find(pp => pp.id === id) }))
+      .filter(({ p }) => p)
+      .map(({ id, p }) => {
+        const qty = s.cart[id];
+        return {
+          ...p, qty, lineTotalDisplay: money(p.price * qty),
+          onInc: () => this.incrementCartQty(id),
+          onDec: () => this.decrementCartQty(id),
+          onRemove: () => this.removeFromCart(id)
+        };
+      });
+
+    const categories = CATEGORIES_LIST.map(label => {
+      const active = s.filters.category === label;
+      const [c1] = label === 'All' ? ['#0C7C6E'] : (CATEGORY_STYLE[label] || ['#0C7C6E']);
+      const catObj = {
+        label,
+        active: active ? '700' : '500',
+        bg: active ? '#17191A' : '#fff',
+        color: active ? '#fff' : '#3A3E3D',
+        borderColor: active ? '#17191A' : '#E6E4DD',
+        dotBg: active ? c1 : '#fff',
+        dotBorder: active ? c1 : '#D2D3CD'
+      };
+      catObj.onSelect = () => this.selectCategory(catObj);
+      return catObj;
+    });
+
+    const ratingOptions = [4, 3, 2, 0].map(v => ({
+      value: v,
+      stars: v === 0 ? 'Any rating' : '★'.repeat(v) + '☆'.repeat(5 - v),
+      bg: s.filters.minRating === v ? '#E8F4F1' : 'transparent',
+      onSelect: () => this.selectMinRating(v)
+    }));
+
+    let filtered = s.products.filter(p =>
+      (s.filters.category === 'All' || p.category === s.filters.category) &&
+      p.price <= s.filters.maxPrice &&
+      p.rating >= s.filters.minRating &&
+      (s.search.trim() === '' || p.name.toLowerCase().includes(s.search.toLowerCase()))
+    );
+    if (s.sortBy === 'price-asc') filtered = [...filtered].sort((a, b) => a.price - b.price);
+    else if (s.sortBy === 'price-desc') filtered = [...filtered].sort((a, b) => b.price - a.price);
+    else if (s.sortBy === 'rating') filtered = [...filtered].sort((a, b) => b.rating - a.rating);
+
+    const hasResults = filtered.length > 0;
+    const visibleProducts = filtered.slice(0, s.catalogVisibleCount).map(p => ({
+      ...p,
+      onView: () => this.viewProduct(p.id),
+      onQuickAdd: (e) => this.quickAdd(e, p.id)
+    }));
+    const showLoadMore = filtered.length > s.catalogVisibleCount;
+    const resultsCountLabel = `${filtered.length} product${filtered.length === 1 ? '' : 's'}`;
+
+    const withCardHandlers = (p) => ({
+      ...p,
+      onView: () => this.viewProduct(p.id),
+      onQuickAdd: (e) => this.quickAdd(e, p.id)
+    });
+
+    const autocompleteResults = (s.search.trim()
+      ? s.products.filter(p => p.name.toLowerCase().includes(s.search.toLowerCase())).slice(0, 5)
+      : []).map(p => ({ ...p, onSelect: () => this.selectAutocomplete(p.id) }));
+
+    const selectedProduct = s.products.find(p => p.id === s.selectedProductId) || null;
+    const relatedProducts = (selectedProduct
+      ? s.products.filter(p => p.category === selectedProduct.category && p.id !== selectedProduct.id).slice(0, 4)
+      : []).map(withCardHandlers);
+    const galleryThumbs = [0, 1, 2, 3].map(i => {
+      const thumb = {
+        index: i,
+        opacity: i === s.selectedImageIndex ? 1 : 0.55,
+        borderColor: i === s.selectedImageIndex ? '#0C7C6E' : 'transparent'
+      };
+      thumb.onSelect = () => this.selectImage(thumb.index);
+      return thumb;
+    });
+
+    const featuredProducts = s.products.filter(p => p.featured).map(withCardHandlers);
+
+    const user = s.user;
+    const userInitials = user ? user.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() : (s.profileForm.name || '').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
+    const paymentIsCard = s.checkout.payment === 'card';
+    const paymentStyles = (key) => ({
+      border: s.checkout.payment === key ? '#0C7C6E' : '#E6E4DD',
+      bg: s.checkout.payment === key ? '#E8F4F1' : '#fff'
+    });
+    const pCard = paymentStyles('card'), pPaypal = paymentStyles('paypal'), pApple = paymentStyles('applepay');
+
+    const checkoutErrors = {
+      hasShippingError: !!s.checkoutErrors.hasShippingError,
+      fullNameBorder: s.checkoutErrors.hasShippingError && !s.checkout.fullName ? '#DC2626' : '#E6E4DD',
+      addressBorder: s.checkoutErrors.hasShippingError && !s.checkout.address ? '#DC2626' : '#E6E4DD',
+      cityBorder: s.checkoutErrors.hasShippingError && !s.checkout.city ? '#DC2626' : '#E6E4DD',
+      zipBorder: s.checkoutErrors.hasShippingError && !s.checkout.zip ? '#DC2626' : '#E6E4DD',
+      countryBorder: s.checkoutErrors.hasShippingError && !s.checkout.country ? '#DC2626' : '#E6E4DD',
+      cardNumberBorder: s.checkoutErrors.hasPaymentError && !s.checkout.cardNumber ? '#DC2626' : '#E6E4DD',
+      cardExpiryBorder: s.checkoutErrors.hasPaymentError && !s.checkout.cardExpiry ? '#DC2626' : '#E6E4DD',
+      cardCvcBorder: s.checkoutErrors.hasPaymentError && !s.checkout.cardCvc ? '#DC2626' : '#E6E4DD'
+    };
+
+    const loginErrors = {
+      email: s.loginErrors.email || '',
+      password: s.loginErrors.password || '',
+      emailBorder: s.loginErrors.email ? '#DC2626' : '#E6E4DD',
+      passwordBorder: s.loginErrors.password ? '#DC2626' : '#E6E4DD'
+    };
+    const registerErrors = {
+      name: s.registerErrors.name || '', email: s.registerErrors.email || '',
+      password: s.registerErrors.password || '', confirm: s.registerErrors.confirm || '', terms: s.registerErrors.terms || '',
+      nameBorder: s.registerErrors.name ? '#DC2626' : '#E6E4DD',
+      emailBorder: s.registerErrors.email ? '#DC2626' : '#E6E4DD',
+      passwordBorder: s.registerErrors.password ? '#DC2626' : '#E6E4DD',
+      confirmBorder: s.registerErrors.confirm ? '#DC2626' : '#E6E4DD'
+    };
+
+    const isTabOrders = s.dashboardTab === 'orders';
+
+    const prefsList = [
+      { key: 'orders', label: 'Order updates', desc: 'Shipping, delivery, and receipt emails', checked: s.prefs.orders },
+      { key: 'promos', label: 'Deals & promotions', desc: 'Sales, discounts, and limited-time offers', checked: s.prefs.promos },
+      { key: 'newsletter', label: 'Weekly newsletter', desc: 'New arrivals and product picks', checked: s.prefs.newsletter }
+    ].map(p => ({ ...p, onToggle: () => this.togglePref(p.key) }));
+
+    // ---- Admin panel data ----
+    const isAdminOverview = s.adminTab === 'overview';
+    const isAdminOrders = s.adminTab === 'orders';
+    const isAdminProducts = s.adminTab === 'products';
+    const isAdminCustomers = s.adminTab === 'customers';
+    const isAdminTeam = s.adminTab === 'team';
+
+    const adminNav = [
+      { key: 'overview', label: 'Overview', onSelect: this.setAdminOverview },
+      { key: 'orders', label: 'Orders', onSelect: this.setAdminOrders },
+      { key: 'products', label: 'Products', onSelect: this.setAdminProducts },
+      { key: 'customers', label: 'Customers', onSelect: this.setAdminCustomers },
+      { key: 'team', label: 'Roles & Access', onSelect: this.setAdminTeam }
+    ].map(n => {
+      const active = s.adminTab === n.key;
+      return { ...n, bg: active ? '#0C7C6E' : 'transparent', color: active ? '#fff' : '#A1A6A1', dot: active ? '#fff' : '#565B59' };
+    });
+
+    const totalRevenue = s.adminCustomers.reduce((sum, c) => sum + c.spent, 0);
+    const adminKpis = [
+      { label: 'Total Revenue', value: money(totalRevenue), delta: '▲ 12.4% vs last month', deltaColor: '#16A34A' },
+      { label: 'Orders', value: String(s.adminOrders.length + 128), delta: '▲ 6.1% vs last month', deltaColor: '#16A34A' },
+      { label: 'Customers', value: String(s.adminCustomers.length + 210), delta: '▲ 3.8% vs last month', deltaColor: '#16A34A' },
+      { label: 'Avg Order Value', value: money(Math.round(totalRevenue / (s.adminOrders.length + 20))), delta: '▼ 1.2% vs last month', deltaColor: '#DC2626' }
+    ];
+
+    const salesData = [
+      { day: 'Mon', v: 62 }, { day: 'Tue', v: 78 }, { day: 'Wed', v: 54 }, { day: 'Thu', v: 88 },
+      { day: 'Fri', v: 96 }, { day: 'Sat', v: 72 }, { day: 'Sun', v: 40 }
+    ];
+    const salesMax = Math.max(...salesData.map(d => d.v));
+    const salesBars = salesData.map(d => ({ day: d.day, height: Math.round((d.v / salesMax) * 100) + '%' }));
+
+    const topProducts = [...s.products].sort((a, b) => b.reviews - a.reviews).slice(0, 4).map((p, i) => ({
+      ...p, soldLabel: fmtCount(Math.round(p.reviews / (2 + i))) + ' sold'
+    }));
+
+    const STATUS_ADMIN = {
+      'Processing': ['#D97706', '#FEF3C7'], 'Shipped': ['#0A655A', '#CFE9E3'],
+      'Delivered': ['#16A34A', '#DCFCE7'], 'Cancelled': ['#DC2626', '#FEE2E2']
+    };
+    const ORDER_FILTERS = ['All', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
+    const orderFilterChips = ORDER_FILTERS.map(f => ({
+      label: f, active: s.orderFilter === f,
+      bg: s.orderFilter === f ? '#17191A' : '#fff',
+      color: s.orderFilter === f ? '#fff' : '#565B59',
+      border: s.orderFilter === f ? '#17191A' : '#E6E4DD',
+      onSelect: () => this.setOrderFilter(f)
+    }));
+    const adminOrdersList = s.adminOrders
+      .filter(o => s.orderFilter === 'All' || o.status === s.orderFilter)
+      .map(o => {
+        const [color, bg] = STATUS_ADMIN[o.status] || ['#6E736F', '#F0EEE8'];
+        const advanceable = o.status === 'Processing' || o.status === 'Shipped';
+        const cancellable = o.status !== 'Delivered' && o.status !== 'Cancelled';
+        return {
+          ...o, totalDisplay: money(o.total), statusColor: color, statusBg: bg,
+          cursor: advanceable ? 'pointer' : 'default',
+          advanceHint: advanceable ? 'Click to advance status' : o.status,
+          onAdvance: advanceable ? () => this.cycleOrderStatus(o.id) : () => {},
+          canCancel: cancellable,
+          onCancel: () => this.cancelOrder(o.id)
+        };
+      });
+
+    const adminProductsList = s.products.map(p => ({
+      ...p,
+      featuredColor: p.featured ? '#F59E0B' : '#D2D3CD',
+      onDecStock: () => this.adjustStock(p.id, -1),
+      onIncStock: () => this.adjustStock(p.id, 1),
+      onRestock: () => this.restock(p.id),
+      onToggleFeatured: () => this.toggleFeatured(p.id),
+      onDelete: () => this.deleteProduct(p.id)
+    }));
+    const productCountLabel = `${s.products.length} products`;
+    const productModalOpen = s.productModalOpen;
+    const newProduct = s.newProduct;
+    const newProductError = s.newProductError;
+
+    const adminCustomersList = s.adminCustomers.map(c => ({
+      ...c,
+      initials: c.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
+      spentDisplay: money(c.spent),
+      statusLabel: c.active ? 'Active' : 'Suspended',
+      statusColor: c.active ? '#16A34A' : '#DC2626',
+      statusBg: c.active ? '#DCFCE7' : '#FEE2E2',
+      actionLabel: c.active ? 'Suspend' : 'Activate',
+      onToggle: () => this.toggleCustomerActive(c.email)
+    }));
+    const customerCountLabel = `${s.adminCustomers.length + 210} customers`;
+
+    const ROLE_STYLE = {
+      'Owner': ['#7C3AED', '#EDE9FE'], 'Manager': ['#0A655A', '#CFE9E3'],
+      'Staff': ['#0891B2', '#CFFAFE'], 'Support': ['#D97706', '#FEF3C7']
+    };
+    const teamList = s.team.map(m => {
+      const [color, bg] = ROLE_STYLE[m.role] || ['#6E736F', '#F0EEE8'];
+      return {
+        ...m,
+        initials: m.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
+        roleColor: color, roleBg: bg,
+        isOwner: m.role === 'Owner',
+        onSetManager: () => this.setTeamRole(m.email, 'Manager'),
+        onSetStaff: () => this.setTeamRole(m.email, 'Staff'),
+        onSetSupport: () => this.setTeamRole(m.email, 'Support')
+      };
+    });
+    const PERM_DEFS = [
+      { key: 'products', label: 'Manage products' },
+      { key: 'orders', label: 'Process orders' },
+      { key: 'refunds', label: 'Issue refunds' },
+      { key: 'customers', label: 'Manage customers' },
+      { key: 'analytics', label: 'View analytics' }
+    ];
+    const permissionRoles = ['Manager', 'Staff', 'Support'].map(role => ({
+      role,
+      roleColor: (ROLE_STYLE[role] || ['#6E736F'])[0],
+      perms: PERM_DEFS.map(pd => ({
+        key: pd.key, label: pd.label,
+        checked: s.permissions[role][pd.key],
+        onToggle: () => this.togglePermission(role, pd.key)
+      }))
+    }));
+
+    return {
+      route, isHome, isCatalog, isProduct, isCart, isCheckout, isLogin, isRegister, isDashboard, isAdmin,
+      isAdminOverview, isAdminOrders, isAdminProducts, isAdminCustomers, isAdminTeam,
+      adminNav, adminKpis, salesBars, topProducts, adminOrdersList, adminProductsList, adminCustomersList, productCountLabel, customerCountLabel,
+      orderFilterChips,
+      productModalOpen, newProduct, newProductError,
+      openProductModal: this.openProductModal, closeProductModal: this.closeProductModal, createProduct: this.createProduct, stopEvt: this.stopEvt,
+      onNewProductName: this.onNewProductName, onNewProductCategory: this.onNewProductCategory, onNewProductPrice: this.onNewProductPrice, onNewProductStock: this.onNewProductStock,
+      teamList, permissionRoles,
+      showFullHeader, showAuthHeader, showCategoryBar,
+      navigate: this.navigate, viewProduct: this.viewProduct,
+      goHome: this.goHome, goCatalog: this.goCatalog, goCart: this.goCart, goCheckout: this.goCheckout,
+      goLogin: this.goLogin, goRegister: this.goRegister, goDashboard: this.goDashboard, goAdmin: this.goAdmin,
+      selectCardPayment: this.selectCardPayment, selectPaypalPayment: this.selectPaypalPayment, selectApplePayPayment: this.selectApplePayPayment,
+      setTabOrders: this.setTabOrders, setTabSettings: this.setTabSettings,
+      search: s.search, onSearchChange: this.onSearchChange, showAutocomplete: s.showAutocomplete, autocompleteResults, selectAutocomplete: this.selectAutocomplete,
+      navHomeColor: isHome ? '#0C7C6E' : '#17191A', navCatalogColor: isCatalog ? '#0C7C6E' : '#17191A',
+      cartCount, user, userInitials,
+      categories,
+      featuredProducts,
+      filters: s.filters, maxPriceDisplay: money(s.filters.maxPrice), onMaxPriceChange: this.onMaxPriceChange,
+      ratingOptions, selectMinRating: this.selectMinRating, selectCategory: this.selectCategory, resetFilters: this.resetFilters,
+      sortBy: s.sortBy, onSortChange: this.onSortChange,
+      hasResults, visibleProducts, showLoadMore, loadMore: this.loadMore, resultsCountLabel,
+      quickAdd: this.quickAdd,
+      selectedProduct, relatedProducts, galleryThumbs, selectImage: this.selectImage,
+      quantity: s.quantity, incrementQty: this.incrementQty, decrementQty: this.decrementQty,
+      addSelectedToCart: this.addSelectedToCart, buyNow: this.buyNow,
+      cartIsEmpty, cartItemsDetailed,
+      cartSubtotalDisplay: money(totals.subtotal), cartShippingDisplay: totals.shipping === 0 ? 'Free' : money(totals.shipping), cartTaxDisplay: money(totals.tax), cartTotalDisplay: money(totals.total),
+      incrementCartQty: this.incrementCartQty, decrementCartQty: this.decrementCartQty, removeFromCart: this.removeFromCart,
+      checkout: s.checkout, checkoutErrors, placeOrder: this.placeOrder, selectPayment: this.selectPayment,
+      onCheckoutField_fullName: this.onCheckoutField_fullName, onCheckoutField_address: this.onCheckoutField_address, onCheckoutField_city: this.onCheckoutField_city, onCheckoutField_zip: this.onCheckoutField_zip, onCheckoutField_country: this.onCheckoutField_country,
+      onCheckoutField_cardNumber: this.onCheckoutField_cardNumber, onCheckoutField_cardExpiry: this.onCheckoutField_cardExpiry, onCheckoutField_cardCvc: this.onCheckoutField_cardCvc,
+      paymentIsCard, paymentCardBorder: pCard.border, paymentCardBg: pCard.bg, paymentPaypalBorder: pPaypal.border, paymentPaypalBg: pPaypal.bg, paymentApplepayBorder: pApple.border, paymentApplepayBg: pApple.bg,
+      loginForm: s.loginForm, loginErrors, onLoginEmailChange: this.onLoginEmailChange, onLoginPasswordChange: this.onLoginPasswordChange, submitLogin: this.submitLogin,
+      registerForm: s.registerForm, registerErrors, onRegisterNameChange: this.onRegisterNameChange, onRegisterEmailChange: this.onRegisterEmailChange, onRegisterPasswordChange: this.onRegisterPasswordChange, onRegisterConfirmChange: this.onRegisterConfirmChange, onRegisterTermsChange: this.onRegisterTermsChange, submitRegister: this.submitRegister,
+      logout: this.logout,
+      isTabOrders, setDashboardTab: this.setDashboardTab, ordersList: s.ordersList,
+      profileForm: s.profileForm, onProfileNameChange: this.onProfileNameChange, onProfileEmailChange: this.onProfileEmailChange, onProfilePhoneChange: this.onProfilePhoneChange, onProfileAddressChange: this.onProfileAddressChange, saveProfile: this.saveProfile,
+      passwordForm: s.passwordForm, onPasswordCurrentChange: this.onPasswordCurrentChange, onPasswordNextChange: this.onPasswordNextChange, onPasswordConfirmChange: this.onPasswordConfirmChange, updatePassword: this.updatePassword,
+      prefsList,
+      tabOrdersBg: isTabOrders ? '#E8F4F1' : 'transparent', tabOrdersColor: isTabOrders ? '#0C7C6E' : '#17191A',
+      tabSettingsBg: !isTabOrders ? '#E8F4F1' : 'transparent', tabSettingsColor: !isTabOrders ? '#0C7C6E' : '#17191A',
+      toast: s.toast
+    };
+  }
+}
+
+</script>
+</body>
+</html>
