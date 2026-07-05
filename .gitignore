@@ -1,0 +1,27 @@
+# Editor / Tooling Configuration
+.claude/
+.vscode/
+.idea/
+
+# Backups and temporary files
+*.bak
+*.tmp
+*.log
+
+# Dependencies and build outputs
+node_modules/
+dist/
+build/
+out/
+.next/
+
+# Environmental variables and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS files
+.DS_Store
+Thumbs.db
