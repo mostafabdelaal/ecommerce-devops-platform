@@ -1,0 +1,55 @@
+# Default values for cloudmart.
+
+global:
+  domain: cloudmart.example.com
+  dbPassword: defaultpassword
+
+services:
+  frontend:
+    enabled: true
+    image:
+      repository: frontend
+      tag: latest
+    port: 80
+    replicas: 2
+    type: ClusterIP
+    ingress:
+      enabled: true
+      path: /
+      pathType: Prefix
+
+  product-service:
+    enabled: true
+    image:
+      repository: product-service
+      tag: latest
+    port: 3000
+    replicas: 2
+    type: ClusterIP
+    db:
+      enabled: true
+      storage: 1Gi
+
+  user-service:
+    enabled: true
+    image:
+      repository: user-service
+      tag: latest
+    port: 3001
+    replicas: 2
+    type: ClusterIP
+    db:
+      enabled: true
+      storage: 1Gi
+
+  order-service:
+    enabled: true
+    image:
+      repository: order-service
+      tag: latest
+    port: 3002
+    replicas: 2
+    type: ClusterIP
+    db:
+      enabled: true
+      storage: 1Gi
