@@ -15,3 +15,14 @@ variable "vpc_cidr" {
   type        = string
   default     = "10.0.0.0/16"
 }
+
+variable "domain_name" {
+  description = "The domain name for the application"
+  type        = string
+}
+
+variable "hosted_zone_id" {
+  description = "The Route 53 Hosted Zone ID for the domain"
+  type        = string
+}
+
