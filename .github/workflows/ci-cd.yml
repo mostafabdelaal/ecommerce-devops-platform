@@ -64,7 +64,7 @@ jobs:
           load: true # Load into local Docker daemon for Trivy scanning
 
       - name: Scan Image with Trivy
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.ECR_REGISTRY }}/${{ matrix.component.image_name }}:${{ github.sha }}
           format: 'table'
