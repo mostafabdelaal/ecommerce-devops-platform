@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-init-scripts
+  labels:
+    app: cloudmart
+data:
+  product-service.sql: |
+    CREATE TABLE IF NOT EXISTS products (
+        id          SERIAL PRIMARY KEY,
+        name        VARCHAR(255)   NOT NULL,
+        description TEXT,
+        price       NUMERIC(10, 2) NOT NULL CHECK (price >= 0),
+        created_at  TIMESTAMPTZ    NOT NULL DEFAULT NOW()
+    );
+
+    INSERT INTO products (name, description, price)
+    SELECT * FROM (VALUES
+        ('Wireless Mouse',      'Ergonomic 2.4GHz wireless mouse with USB receiver', 24.99),
+        ('Mechanical Keyboard', 'RGB backlit mechanical keyboard, blue switches',     79.50),
+        ('27" 4K Monitor',      'UHD IPS display with USB-C and HDMI inputs',        329.00),
+        ('USB-C Hub',           '7-in-1 hub: HDMI, USB-A, SD card and PD charging',   45.00),
+        ('Noise-Cancelling Headphones', 'Over-ear Bluetooth headphones with ANC',    129.99)
+    ) AS seed(name, description, price)
+    WHERE NOT EXISTS (SELECT 1 FROM products);
+
+  user-service.sql: |
+    CREATE TABLE IF NOT EXISTS users (
+        id          SERIAL PRIMARY KEY,
+        username    VARCHAR(255)   NOT NULL,
+        email       VARCHAR(255)   NOT NULL UNIQUE,
+        created_at  TIMESTAMPTZ    NOT NULL DEFAULT NOW()
+    );
+
+    INSERT INTO users (username, email)
+    SELECT * FROM (VALUES
+        ('alice', 'alice@example.com'),
+        ('bob', 'bob@example.com')
+    ) AS seed(username, email)
+    WHERE NOT EXISTS (SELECT 1 FROM users);
+
+  order-service.sql: |
+    CREATE TABLE IF NOT EXISTS orders (
+        id          SERIAL PRIMARY KEY,
+        user_id     INTEGER        NOT NULL,
+        total       NUMERIC(10, 2) NOT NULL CHECK (total >= 0),
+        status      VARCHAR(50)    NOT NULL DEFAULT 'PENDING',
+        created_at  TIMESTAMPTZ    NOT NULL DEFAULT NOW()
+    );
+
+    INSERT INTO orders (user_id, total, status)
+    SELECT * FROM (VALUES
+        (1, 104.49, 'COMPLETED'),
+        (2, 329.00, 'PENDING')
+    ) AS seed(user_id, total, status)
+    WHERE NOT EXISTS (SELECT 1 FROM orders);
