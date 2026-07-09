@@ -15,15 +15,8 @@ terraform {
   }
   required_version = ">= 1.3.0"
 
-  # Partial S3 backend configuration.
-  # The bucket name depends on the AWS account ID for uniqueness.
-  # Initialize with:
-  # terraform init -backend-config="bucket=cloudmart-tfstate-<YOUR_ACCOUNT_ID>"
-  backend "s3" {
-    key            = "cloudmart/terraform.tfstate"
-    region         = "eu-central-1"
-    encrypt        = true
-  }
+  # Local backend for the credit-demo (no S3 bucket bootstrap required).
+  backend "local" {}
 }
 
 locals {

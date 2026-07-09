@@ -1,16 +1,18 @@
 # Default values for cloudmart.
 
 global:
-  domain: cloudmart.abdallahgabr.me
-  acmCertificateArn: arn:aws:acm:eu-central-1:500345929632:certificate/12434a4c-51ae-4d4c-801a-0d031b1dab37
+  # Domain-less deploy: no custom host, no ACM cert. Ingress serves plain HTTP
+  # on the ALB's own *.elb.amazonaws.com DNS name.
+  domain: ""
+  acmCertificateArn: ""
   dbPassword: defaultpassword
 
 services:
   frontend:
     enabled: true
     image:
-      repository: 500345929632.dkr.ecr.eu-central-1.amazonaws.com/cloudmart-frontend
-      tag: 78bd871d555871555fe6347bca930ecbad90c0f7
+      repository: 004595030618.dkr.ecr.eu-central-1.amazonaws.com/cloudmart-frontend
+      tag: v1
     port: 80
     replicas: 2
     type: ClusterIP
@@ -22,8 +24,8 @@ services:
   product-service:
     enabled: true
     image:
-      repository: 500345929632.dkr.ecr.eu-central-1.amazonaws.com/cloudmart-product-service
-      tag: 78bd871d555871555fe6347bca930ecbad90c0f7
+      repository: 004595030618.dkr.ecr.eu-central-1.amazonaws.com/cloudmart-product-service
+      tag: v1
     port: 3000
     replicas: 2
     type: ClusterIP
@@ -34,8 +36,8 @@ services:
   user-service:
     enabled: true
     image:
-      repository: 500345929632.dkr.ecr.eu-central-1.amazonaws.com/cloudmart-user-service
-      tag: 78bd871d555871555fe6347bca930ecbad90c0f7
+      repository: 004595030618.dkr.ecr.eu-central-1.amazonaws.com/cloudmart-user-service
+      tag: v1
     port: 3001
     replicas: 2
     type: ClusterIP
@@ -46,8 +48,8 @@ services:
   order-service:
     enabled: true
     image:
-      repository: 500345929632.dkr.ecr.eu-central-1.amazonaws.com/cloudmart-order-service
-      tag: 78bd871d555871555fe6347bca930ecbad90c0f7
+      repository: 004595030618.dkr.ecr.eu-central-1.amazonaws.com/cloudmart-order-service
+      tag: v1
     port: 3002
     replicas: 2
     type: ClusterIP

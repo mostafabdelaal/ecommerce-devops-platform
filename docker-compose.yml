@@ -159,7 +159,7 @@ services:
   # --- Frontend Service ---
   frontend:
     build:
-      context: ./frontend
+      context: ./Frontend
     container_name: cloudmart-frontend
     restart: unless-stopped
     ports:

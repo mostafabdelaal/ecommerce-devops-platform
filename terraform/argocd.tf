@@ -33,26 +33,13 @@ resource "helm_release" "argocd" {
   version    = "5.51.6"
   namespace  = kubernetes_namespace.argocd.metadata[0].name
 
+  # Domain-less deploy: ArgoCD server stays ClusterIP, accessed via
+  # `kubectl port-forward svc/argocd-server -n argocd 8080:443`.
   values = [
     yamlencode({
       server = {
         service = {
           type = "ClusterIP"
-        }
-        ingress = {
-          enabled = true
-          ingressClassName = "alb"
-          hosts = [
-            "argocd.${var.domain_name}"
-          ]
-          annotations = {
-            "alb.ingress.kubernetes.io/scheme" = "internet-facing"
-            "alb.ingress.kubernetes.io/target-type" = "ip"
-            "alb.ingress.kubernetes.io/backend-protocol" = "HTTPS"
-            "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTP\": 80}, {\"HTTPS\":443}]"
-            "alb.ingress.kubernetes.io/ssl-redirect" = "443"
-            "alb.ingress.kubernetes.io/certificate-arn" = aws_acm_certificate_validation.cert.certificate_arn
-          }
         }
       }
     })

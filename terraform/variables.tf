@@ -17,12 +17,14 @@ variable "vpc_cidr" {
 }
 
 variable "domain_name" {
-  description = "The domain name for the application"
+  description = "The domain name for the application (unused in domain-less deploy)"
   type        = string
+  default     = ""
 }
 
 variable "hosted_zone_id" {
-  description = "The Route 53 Hosted Zone ID for the domain"
+  description = "The Route 53 Hosted Zone ID for the domain (unused in domain-less deploy)"
   type        = string
+  default     = ""
 }
 

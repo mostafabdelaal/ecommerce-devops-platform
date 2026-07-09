@@ -16,7 +16,9 @@ metadata:
 spec:
   ingressClassName: alb
   rules:
-    - host: {{ $.Values.global.domain }}
+    - {{- if $.Values.global.domain }}
+      host: {{ $.Values.global.domain }}
+      {{- end }}
       http:
         paths:
           - path: {{ $svc.ingress.path }}
