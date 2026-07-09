@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/mostafabdelaal/ecommerce-devops-platform.git
     path: k8s/monitoring
-    targetRevision: HEAD
+    targetRevision: deploy-eks
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
