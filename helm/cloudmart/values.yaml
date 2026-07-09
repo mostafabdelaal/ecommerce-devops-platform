@@ -8,7 +8,7 @@ services:
   frontend:
     enabled: true
     image:
-      repository: frontend
+      repository: 500345929632.dkr.ecr.eu-central-1.amazonaws.com/cloudmart-frontend
       tag: latest
     port: 80
     replicas: 2
@@ -21,7 +21,7 @@ services:
   product-service:
     enabled: true
     image:
-      repository: product-service
+      repository: 500345929632.dkr.ecr.eu-central-1.amazonaws.com/cloudmart-product-service
       tag: latest
     port: 3000
     replicas: 2
@@ -33,7 +33,7 @@ services:
   user-service:
     enabled: true
     image:
-      repository: user-service
+      repository: 500345929632.dkr.ecr.eu-central-1.amazonaws.com/cloudmart-user-service
       tag: latest
     port: 3001
     replicas: 2
@@ -45,7 +45,7 @@ services:
   order-service:
     enabled: true
     image:
-      repository: order-service
+      repository: 500345929632.dkr.ecr.eu-central-1.amazonaws.com/cloudmart-order-service
       tag: latest
     port: 3002
     replicas: 2
