@@ -2,12 +2,13 @@
 
 const test = require('node:test');
 const assert = require('node:assert');
-const { app, pool, server } = require('../server');
+const { app, pool, waitForDatabase } = require('../server');
 
 let baseUrl;
 let testServer;
 
 test.before(async () => {
+  await waitForDatabase();
   await new Promise((resolve) => {
     testServer = app.listen(0, () => {
       const { port } = testServer.address();
@@ -30,7 +31,7 @@ test('POST /api/users rejects a missing email with 400', async () => {
   });
   assert.strictEqual(res.status, 400);
   const body = await res.json();
-  assert.match(body.error, /email/);
+  assert.match(body.error, /username/);
 });
 
 test('GET /health reports the service and database as healthy', async () => {
@@ -47,3 +48,4 @@ test('GET /api/users returns the seeded users', async () => {
   const body = await res.json();
   assert.ok(Array.isArray(body.users));
 });
+

@@ -2,12 +2,13 @@
 
 const test = require('node:test');
 const assert = require('node:assert');
-const { app, pool, server } = require('../server');
+const { app, pool, waitForDatabase } = require('../server');
 
 let baseUrl;
 let testServer;
 
 test.before(async () => {
+  await waitForDatabase();
   await new Promise((resolve) => {
     testServer = app.listen(0, () => {
       const { port } = testServer.address();
@@ -47,3 +48,4 @@ test('GET /api/orders returns the seeded orders', async () => {
   const body = await res.json();
   assert.ok(Array.isArray(body.orders));
 });
+

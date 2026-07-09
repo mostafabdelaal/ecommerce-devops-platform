@@ -2,12 +2,13 @@
 
 const test = require('node:test');
 const assert = require('node:assert');
-const { app, pool, server } = require('../server');
+const { app, pool, waitForDatabase } = require('../server');
 
 let baseUrl;
 let testServer;
 
 test.before(async () => {
+  await waitForDatabase();
   await new Promise((resolve) => {
     testServer = app.listen(0, () => {
       const { port } = testServer.address();
@@ -61,3 +62,4 @@ test('GET /api/products returns the seeded products', async () => {
       assert.ok(body.products.length >= 1, 'expected at least one seeded product');
   }
 });
+
