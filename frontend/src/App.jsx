@@ -1,122 +1,168 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import React, { useState, useEffect } from 'react';
+import { ShoppingCart, Package, User, Plus, Check, Loader2, CreditCard } from 'lucide-react';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [products, setProducts] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  
+  const [cart, setCart] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [orderStatus, setOrderStatus] = useState(null);
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+
+  useEffect(() => {
+    // Fetch products and users on mount
+    Promise.all([
+      fetch('/api/products').then(res => res.json()),
+      fetch('/api/users').then(res => res.json())
+    ])
+    .then(([productsData, usersData]) => {
+      if (productsData.products) setProducts(productsData.products);
+      if (usersData.users && usersData.users.length > 0) {
+        setUsers(usersData.users);
+        setSelectedUser(usersData.users[0].id);
+      }
+      setLoading(false);
+    })
+    .catch(err => {
+      console.error("Error fetching data:", err);
+      setLoading(false);
+    });
+  }, []);
+
+  const addToCart = (product) => {
+    setCart([...cart, product]);
+    setOrderStatus(null);
+  };
+
+  const cartTotal = cart.reduce((sum, item) => sum + Number(item.price), 0);
+
+  const placeOrder = async () => {
+    if (!selectedUser || cart.length === 0) return;
+    
+    setIsPlacingOrder(true);
+    setOrderStatus(null);
+    
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: Number(selectedUser),
+          total: cartTotal
+        })
+      });
+      
+      if (response.ok) {
+        setCart([]);
+        setOrderStatus('success');
+      } else {
+        setOrderStatus('error');
+      }
+    } catch (err) {
+      console.error(err);
+      setOrderStatus('error');
+    } finally {
+      setIsPlacingOrder(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="app-container" style={{ display: 'flex', justifyContent: 'center', marginTop: '20vh' }}>
+        <Loader2 className="animate-spin" size={48} color="#6366f1" />
+      </div>
+    );
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="app-container">
+      <header className="glass">
+        <div className="logo">
+          <Package size={28} />
+          CloudMart
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
+        <div className="user-selector">
+          <User size={20} color="#94a3b8" />
+          <select 
+            value={selectedUser || ''} 
+            onChange={(e) => setSelectedUser(e.target.value)}
+          >
+            {users.map(u => (
+              <option key={u.id} value={u.id}>{u.username} ({u.email})</option>
+            ))}
+          </select>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      </header>
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+      <div className="main-content">
+        <div className="products-section">
+          <h2 style={{ marginBottom: '1.5rem', fontWeight: 600 }}>Featured Products</h2>
+          <div className="grid">
+            {products.map(product => (
+              <div key={product.id} className="product-card glass">
+                <div className="product-name">{product.name}</div>
+                <div className="product-desc">{product.description}</div>
+                <div className="product-footer">
+                  <div className="product-price">${Number(product.price).toFixed(2)}</div>
+                  <button onClick={() => addToCart(product)}>
+                    <Plus size={16} /> Add
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          {products.length === 0 && (
+            <div className="status-msg">No products available.</div>
+          )}
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        <div className="cart-section glass">
+          <div className="cart-header">
+            <ShoppingCart size={24} />
+            Your Cart
+          </div>
+          
+          {orderStatus === 'success' && (
+            <div className="success-msg">
+              <Check size={20} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '0.5rem' }} />
+              Order placed successfully!
+            </div>
+          )}
+          
+          {cart.length === 0 ? (
+            <div className="status-msg" style={{ padding: '2rem 0' }}>Your cart is empty.</div>
+          ) : (
+            <>
+              <div className="cart-items">
+                {cart.map((item, idx) => (
+                  <div key={idx} className="cart-item">
+                    <div className="cart-item-info">
+                      <span className="cart-item-name">{item.name}</span>
+                      <span className="cart-item-price">${Number(item.price).toFixed(2)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="cart-total">
+                <span>Total</span>
+                <span>${cartTotal.toFixed(2)}</span>
+              </div>
+              <button 
+                className="checkout-btn" 
+                onClick={placeOrder} 
+                disabled={isPlacingOrder}
+              >
+                {isPlacingOrder ? <Loader2 className="animate-spin" size={20} /> : <CreditCard size={20} />}
+                {isPlacingOrder ? 'Processing...' : 'Checkout'}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default App;
