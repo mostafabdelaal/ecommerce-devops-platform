@@ -55,6 +55,8 @@ spec:
           value: "{{ $.Values.global.dbPassword }}"
         - name: POSTGRES_DB
           value: "{{ $name }}"
+        - name: PGDATA
+          value: "/var/lib/postgresql/data/pgdata"
         volumeMounts:
         - name: db-data
           mountPath: /var/lib/postgresql/data
