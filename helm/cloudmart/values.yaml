@@ -9,7 +9,7 @@ services:
     enabled: true
     image:
       repository: 500345929632.dkr.ecr.eu-central-1.amazonaws.com/cloudmart-frontend
-      tag: latest
+      tag: 4fe1ee40967379fa0562c19a7e854e8a54d010cc
     port: 80
     replicas: 2
     type: ClusterIP
@@ -22,7 +22,7 @@ services:
     enabled: true
     image:
       repository: 500345929632.dkr.ecr.eu-central-1.amazonaws.com/cloudmart-product-service
-      tag: latest
+      tag: 4fe1ee40967379fa0562c19a7e854e8a54d010cc
     port: 3000
     replicas: 2
     type: ClusterIP
@@ -34,7 +34,7 @@ services:
     enabled: true
     image:
       repository: 500345929632.dkr.ecr.eu-central-1.amazonaws.com/cloudmart-user-service
-      tag: latest
+      tag: 4fe1ee40967379fa0562c19a7e854e8a54d010cc
     port: 3001
     replicas: 2
     type: ClusterIP
@@ -46,7 +46,7 @@ services:
     enabled: true
     image:
       repository: 500345929632.dkr.ecr.eu-central-1.amazonaws.com/cloudmart-order-service
-      tag: latest
+      tag: 4fe1ee40967379fa0562c19a7e854e8a54d010cc
     port: 3002
     replicas: 2
     type: ClusterIP
