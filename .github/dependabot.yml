@@ -1,0 +1,23 @@
+version: 2
+updates:
+  # Backend npm dependencies.
+  - package-ecosystem: npm
+    directory: /backend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    labels: ["dependencies"]
+
+  # Dockerfile base image.
+  - package-ecosystem: docker
+    directory: /backend
+    schedule:
+      interval: weekly
+    labels: ["dependencies", "docker"]
+
+  # The GitHub Actions used in the workflows above.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    labels: ["dependencies", "ci"]

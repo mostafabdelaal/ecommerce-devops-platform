@@ -209,7 +209,13 @@ async function shutdown(signal) {
   process.exit(0);
 }
 
-process.on('SIGTERM', () => shutdown('SIGTERM'));
-process.on('SIGINT', () => shutdown('SIGINT'));
+// Only wire signal handlers and auto-start when run directly (e.g. `node
+// server.js`). When the module is imported by a test, the test controls the
+// lifecycle instead, so importing has no side effects.
+if (require.main === module) {
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
+  start();
+}
 
-start();
+module.exports = { app, pool, config, start, waitForDatabase, shutdown };
