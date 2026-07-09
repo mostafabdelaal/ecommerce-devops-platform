@@ -1,52 +1,47 @@
 # -----------------------------------------------------------------------------
-# CloudMart local orchestration: backend + PostgreSQL.
-#
-# The backend depends on the database being *healthy* (not merely started),
-# and the database persists its data to a named volume.
+# CloudMart local orchestration: Microservices + PostgreSQL databases.
 # -----------------------------------------------------------------------------
 
 services:
-  db:
+  # --- Product Service ---
+  product-db:
     image: postgres:16-alpine
-    container_name: cloudmart-db
+    container_name: cloudmart-product-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${DB_USER:-cloudmart}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-cloudmart}
-      POSTGRES_DB: ${DB_NAME:-cloudmart}
+      POSTGRES_USER: cloudmart
+      POSTGRES_PASSWORD: cloudmart
+      POSTGRES_DB: productdb
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - "5432:5432"
     volumes:
-      # Persist database data across container restarts.
-      - pgdata:/var/lib/postgresql/data
-      # Run the schema + seed script on first initialization.
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - product-pgdata:/var/lib/postgresql/data
+      - ./services/product-service/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-cloudmart} -d ${DB_NAME:-cloudmart}"]
+      test: ["CMD-SHELL", "pg_isready -U cloudmart -d productdb"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
 
-  backend:
+  product-service:
     build:
-      context: ./backend
-    container_name: cloudmart-backend
+      context: ./services/product-service
+    container_name: cloudmart-product-service
     restart: unless-stopped
     environment:
       PORT: 3000
-      # Inside the compose network the database is reachable by its service name.
-      DB_HOST: db
+      DB_HOST: product-db
       DB_PORT: 5432
-      DB_USER: ${DB_USER:-cloudmart}
-      DB_PASSWORD: ${DB_PASSWORD:-cloudmart}
-      DB_NAME: ${DB_NAME:-cloudmart}
+      DB_USER: cloudmart
+      DB_PASSWORD: cloudmart
+      DB_NAME: productdb
       DB_CONNECT_RETRIES: 5
       DB_CONNECT_RETRY_DELAY_MS: 3000
     ports:
-      - "${PORT:-3000}:3000"
+      - "3000:3000"
     depends_on:
-      db:
+      product-db:
         condition: service_healthy
     healthcheck:
       test:
@@ -59,5 +54,109 @@ services:
       retries: 3
       start_period: 20s
 
+  # --- User Service ---
+  user-db:
+    image: postgres:16-alpine
+    container_name: cloudmart-user-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cloudmart
+      POSTGRES_PASSWORD: cloudmart
+      POSTGRES_DB: userdb
+    ports:
+      - "5433:5432"
+    volumes:
+      - user-pgdata:/var/lib/postgresql/data
+      - ./services/user-service/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cloudmart -d userdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  user-service:
+    build:
+      context: ./services/user-service
+    container_name: cloudmart-user-service
+    restart: unless-stopped
+    environment:
+      PORT: 3001
+      DB_HOST: user-db
+      DB_PORT: 5432
+      DB_USER: cloudmart
+      DB_PASSWORD: cloudmart
+      DB_NAME: userdb
+      DB_CONNECT_RETRIES: 5
+      DB_CONNECT_RETRY_DELAY_MS: 3000
+    ports:
+      - "3001:3001"
+    depends_on:
+      user-db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - "CMD"
+        - "node"
+        - "-e"
+        - "require('http').get('http://127.0.0.1:3001/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  # --- Order Service ---
+  order-db:
+    image: postgres:16-alpine
+    container_name: cloudmart-order-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cloudmart
+      POSTGRES_PASSWORD: cloudmart
+      POSTGRES_DB: orderdb
+    ports:
+      - "5434:5432"
+    volumes:
+      - order-pgdata:/var/lib/postgresql/data
+      - ./services/order-service/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cloudmart -d orderdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  order-service:
+    build:
+      context: ./services/order-service
+    container_name: cloudmart-order-service
+    restart: unless-stopped
+    environment:
+      PORT: 3002
+      DB_HOST: order-db
+      DB_PORT: 5432
+      DB_USER: cloudmart
+      DB_PASSWORD: cloudmart
+      DB_NAME: orderdb
+      DB_CONNECT_RETRIES: 5
+      DB_CONNECT_RETRY_DELAY_MS: 3000
+    ports:
+      - "3002:3002"
+    depends_on:
+      order-db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - "CMD"
+        - "node"
+        - "-e"
+        - "require('http').get('http://127.0.0.1:3002/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
 volumes:
-  pgdata:
+  product-pgdata:
+  user-pgdata:
+  order-pgdata:
