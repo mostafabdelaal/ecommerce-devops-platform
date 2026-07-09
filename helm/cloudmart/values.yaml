@@ -7,7 +7,7 @@ global:
 
 services:
   frontend:
-    enabled: true
+    enabled: false
     image:
       repository: 500345929632.dkr.ecr.eu-central-1.amazonaws.com/cloudmart-frontend
       tag: 78bd871d555871555fe6347bca930ecbad90c0f7

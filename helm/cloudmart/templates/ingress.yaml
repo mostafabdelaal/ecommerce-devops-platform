@@ -1,10 +1,7 @@
-{{- range $name, $svc := .Values.services }}
-{{- if and $svc.enabled $svc.ingress }}
-{{- if $svc.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ $name }}-ingress
+  name: api-ingress
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
@@ -16,16 +13,27 @@ metadata:
 spec:
   ingressClassName: alb
   rules:
-    - host: {{ $.Values.global.domain }}
+    - host: api.{{ $.Values.global.domain }}
       http:
         paths:
-          - path: {{ $svc.ingress.path }}
-            pathType: {{ $svc.ingress.pathType }}
+          - path: /api/products
+            pathType: Prefix
             backend:
               service:
-                name: {{ $name }}
+                name: product-service
                 port:
-                  number: {{ $svc.port }}
-{{- end }}
-{{- end }}
-{{- end }}
+                  number: {{ index $.Values.services "product-service" "port" | default 3000 }}
+          - path: /api/users
+            pathType: Prefix
+            backend:
+              service:
+                name: user-service
+                port:
+                  number: {{ index $.Values.services "user-service" "port" | default 3001 }}
+          - path: /api/orders
+            pathType: Prefix
+            backend:
+              service:
+                name: order-service
+                port:
+                  number: {{ index $.Values.services "order-service" "port" | default 3002 }}

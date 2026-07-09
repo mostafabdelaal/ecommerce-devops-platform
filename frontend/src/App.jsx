@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Package, User, Plus, Check, Loader2, CreditCard } from 'lucide-react';
 
+const API_URL = import.meta.env.VITE_API_URL || '';
+
 function App() {
   const [products, setProducts] = useState([]);
   const [users, setUsers] = useState([]);
@@ -14,8 +16,8 @@ function App() {
   useEffect(() => {
     // Fetch products and users on mount
     Promise.all([
-      fetch('/api/products').then(res => res.json()),
-      fetch('/api/users').then(res => res.json())
+      fetch(`${API_URL}/api/products`).then(res => res.json()),
+      fetch(`${API_URL}/api/users`).then(res => res.json())
     ])
     .then(([productsData, usersData]) => {
       if (productsData.products) setProducts(productsData.products);
@@ -45,7 +47,7 @@ function App() {
     setOrderStatus(null);
     
     try {
-      const response = await fetch('/api/orders', {
+      const response = await fetch(`${API_URL}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
