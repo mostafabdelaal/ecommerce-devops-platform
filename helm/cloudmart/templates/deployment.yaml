@@ -24,8 +24,16 @@ spec:
         - containerPort: {{ $svc.port }}
         {{- if $svc.db }}
         env:
-        - name: DATABASE_URL
-          value: "postgresql://postgres:{{ $.Values.global.dbPassword }}@{{ $name }}-db:5432/{{ $name }}"
+        - name: DB_HOST
+          value: "{{ $name }}-db"
+        - name: DB_USER
+          value: "postgres"
+        - name: DB_PASSWORD
+          value: "{{ $.Values.global.dbPassword }}"
+        - name: DB_NAME
+          value: "{{ $name }}"
+        - name: DB_PORT
+          value: "5432"
         {{- end }}
 ---
 {{- if $svc.db }}
