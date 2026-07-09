@@ -1,0 +1,25 @@
+{{- range $name, $svc := .Values.services }}
+{{- if and $svc.enabled $svc.ingress }}
+{{- if $svc.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $name }}-ingress
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: {{ $svc.ingress.path }}
+            pathType: {{ $svc.ingress.pathType }}
+            backend:
+              service:
+                name: {{ $name }}
+                port:
+                  number: {{ $svc.port }}
+{{- end }}
+{{- end }}
+{{- end }}
