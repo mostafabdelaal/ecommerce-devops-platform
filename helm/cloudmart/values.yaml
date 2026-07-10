@@ -5,7 +5,13 @@ global:
   # on the ALB's own *.elb.amazonaws.com DNS name.
   domain: ""
   acmCertificateArn: ""
+  # DB password. For real deploys DO NOT keep the secret here — create a
+  # Secret named per existingDbSecret with key "db-password", e.g.:
+  #   kubectl create secret generic cloudmart-db --from-literal=db-password=...
+  # then set existingDbSecret: cloudmart-db and leave dbPassword blank.
+  # The value below is a dev-only default used when existingDbSecret is empty.
   dbPassword: defaultpassword
+  existingDbSecret: ""
 
 services:
   frontend:

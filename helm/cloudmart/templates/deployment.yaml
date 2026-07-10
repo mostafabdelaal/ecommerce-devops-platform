@@ -29,7 +29,10 @@ spec:
         - name: DB_USER
           value: "postgres"
         - name: DB_PASSWORD
-          value: "{{ $.Values.global.dbPassword }}"
+          valueFrom:
+            secretKeyRef:
+              name: {{ $.Values.global.existingDbSecret | default "cloudmart-db" }}
+              key: db-password
         - name: DB_NAME
           value: "{{ $name }}"
         - name: DB_PORT
@@ -60,7 +63,10 @@ spec:
         - containerPort: 5432
         env:
         - name: POSTGRES_PASSWORD
-          value: "{{ $.Values.global.dbPassword }}"
+          valueFrom:
+            secretKeyRef:
+              name: {{ $.Values.global.existingDbSecret | default "cloudmart-db" }}
+              key: db-password
         - name: POSTGRES_DB
           value: "{{ $name }}"
         - name: PGDATA

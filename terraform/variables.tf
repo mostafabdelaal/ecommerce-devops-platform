@@ -28,3 +28,9 @@ variable "hosted_zone_id" {
   default     = ""
 }
 
+variable "github_repo" {
+  description = "GitHub repo (owner/name) allowed to assume the CI/CD OIDC role"
+  type        = string
+  default     = "mostafabdelaal/ecommerce-devops-platform"
+}
+

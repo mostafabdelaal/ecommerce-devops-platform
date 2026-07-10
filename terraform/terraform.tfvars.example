@@ -1,0 +1,14 @@
+# Copy to terraform.tfvars and fill in. terraform.tfvars is gitignored.
+# All values below have defaults in variables.tf; override only what you need.
+
+aws_region   = "eu-central-1"
+cluster_name = "cloudmart-eks-cluster"
+vpc_cidr     = "10.0.0.0/16"
+
+# CI/CD OIDC: repo allowed to assume the ECR push role.
+github_repo = "mostafabdelaal/ecommerce-devops-platform"
+
+# Only needed if you re-enable the domain/HTTPS path (acm.tf, external-dns).
+# Leave empty for the domain-less deploy.
+domain_name    = ""
+hosted_zone_id = ""
