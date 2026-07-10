@@ -56,57 +56,57 @@ data:
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
-              "mappings": [
-                { "options": { "0": { "color": "red", "text": "DOWN" }, "1": { "color": "green", "text": "UP" } }, "type": "value" }
-              ],
-              "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+              "mappings": [],
+              "noValue": "DOWN",
+              "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] },
+              "unit": "short"
             },
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 8, "x": 0, "y": 1 },
           "id": 1,
-          "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+          "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "none" },
           "title": "Product Service",
           "type": "stat",
-          "targets": [{ "expr": "up{kubernetes_pod_label_app=\"product-service\"}", "legendFormat": "{{kubernetes_pod_label_app}}" }]
+          "targets": [{ "expr": "count(product_service_process_resident_memory_bytes) > 0", "legendFormat": "product-service", "instant": true }]
         },
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
-              "mappings": [
-                { "options": { "0": { "color": "red", "text": "DOWN" }, "1": { "color": "green", "text": "UP" } }, "type": "value" }
-              ],
-              "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+              "mappings": [],
+              "noValue": "DOWN",
+              "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] },
+              "unit": "short"
             },
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 8, "x": 8, "y": 1 },
           "id": 2,
-          "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+          "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "none" },
           "title": "User Service",
           "type": "stat",
-          "targets": [{ "expr": "up{kubernetes_pod_label_app=\"user-service\"}", "legendFormat": "{{kubernetes_pod_label_app}}" }]
+          "targets": [{ "expr": "count(user_service_process_resident_memory_bytes) > 0", "legendFormat": "user-service", "instant": true }]
         },
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
           "fieldConfig": {
             "defaults": {
               "color": { "mode": "thresholds" },
-              "mappings": [
-                { "options": { "0": { "color": "red", "text": "DOWN" }, "1": { "color": "green", "text": "UP" } }, "type": "value" }
-              ],
-              "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+              "mappings": [],
+              "noValue": "DOWN",
+              "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] },
+              "unit": "short"
             },
             "overrides": []
           },
           "gridPos": { "h": 4, "w": 8, "x": 16, "y": 1 },
           "id": 3,
-          "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "auto", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "auto" },
+          "options": { "colorMode": "background", "graphMode": "none", "justifyMode": "center", "orientation": "auto", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "textMode": "none" },
           "title": "Order Service",
           "type": "stat",
-          "targets": [{ "expr": "up{kubernetes_pod_label_app=\"order-service\"}", "legendFormat": "{{kubernetes_pod_label_app}}" }]
+          "targets": [{ "expr": "count(order_service_process_resident_memory_bytes) > 0", "legendFormat": "order-service", "instant": true }]
         },
         {
           "collapsed": false,
