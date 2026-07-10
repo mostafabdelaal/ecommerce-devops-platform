@@ -71,7 +71,7 @@ data:
         Port            ${FLUENT_ELASTICSEARCH_PORT}
         Logstash_Format On
         Retry_Limit     False
-        Type            _doc
+        Suppress_Type_Name On
 
   parsers.conf: |
     [PARSER]
