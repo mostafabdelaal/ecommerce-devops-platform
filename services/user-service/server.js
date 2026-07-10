@@ -7,6 +7,10 @@
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
+const promClient = require('prom-client');
+
+// Initialize Prometheus metrics collection
+promClient.collectDefaultMetrics({ prefix: 'user_service_' });
 
 const config = {
   port: parseInt(process.env.PORT || '3001', 10),
@@ -101,6 +105,17 @@ app.get('/health', async (req, res) => {
   }
 });
 
+// GET /metrics - Prometheus metrics
+app.get('/metrics', async (req, res) => {
+  try {
+    res.set('Content-Type', promClient.register.contentType);
+    res.end(await promClient.register.metrics());
+  } catch (err) {
+    log('error', 'Failed to generate metrics', { error: err.message });
+    res.status(500).end(err.message);
+  }
+});
+
 app.get('/api/users', async (req, res) => {
   try {
     const result = await pool.query('SELECT id, username, email, created_at FROM users ORDER BY id ASC');
@@ -137,7 +152,7 @@ app.post('/api/users', async (req, res) => {
 app.get('/', (req, res) => {
   res.status(200).json({
     service: 'cloudmart-user-service',
-    endpoints: ['/health', 'GET /api/users', 'POST /api/users'],
+    endpoints: ['/health', '/metrics', 'GET /api/users', 'POST /api/users'],
   });
 });
 
