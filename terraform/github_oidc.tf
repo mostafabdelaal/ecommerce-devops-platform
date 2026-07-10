@@ -32,6 +32,35 @@ resource "aws_iam_role_policy_attachment" "github_actions_ecr" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
 }
 
+data "aws_iam_policy_document" "github_actions_frontend" {
+  statement {
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:ListBucket",
+      "s3:DeleteObject"
+    ]
+    resources = [
+      "arn:aws:s3:::cloudmart-frontend-${local.account_id}",
+      "arn:aws:s3:::cloudmart-frontend-${local.account_id}/*"
+    ]
+  }
+
+  statement {
+    actions = [
+      "cloudfront:CreateInvalidation",
+      "cloudfront:ListDistributions"
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "github_actions_frontend" {
+  name   = "github-actions-frontend-policy"
+  role   = aws_iam_role.github_actions.name
+  policy = data.aws_iam_policy_document.github_actions_frontend.json
+}
+
 output "github_actions_role_arn" {
   value = aws_iam_role.github_actions.arn
 }
